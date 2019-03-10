@@ -1,0 +1,55 @@
+{
+	"name": "pixelplex-base-server",
+	"version": "0.2.0",
+	"repository": {
+		"type": "git",
+		"url": "git@gitlab.pixelplex.by:full-stack/backend.git"
+	},
+	"homepage": "https://gitlab.pixelplex.by/full-stack/backend",
+	"license": "UNLICENSED",
+	"private": true,
+	"scripts": {
+		"start": "cross-env MODULE=api node server.js",
+		"test": "cross-env NODE_ENV=test NODE_APP_INSTANCE=test nyc node_modules/.bin/mocha --exit --timeout 15000",
+		"lint": "node_modules/.bin/eslint . --quiet",
+		"doc": "node_modules/.bin/apidoc -i modules/api/controllers/ -o apidoc/",
+		"migrate-development": "set NODE_ENV=development ./node_modules/.bin/sequelize db:migrate",
+		"migrate-production": "set NODE_ENV=production ./node_modules/.bin/sequelize db:migrate"
+	},
+	"dependencies": {
+		"awilix": "^4.2.0",
+		"bcrypt": "^3.0.0",
+		"bignumber.js": "^8.0.2",
+		"body-parser": "^1.18.2",
+		"chai-http": "^4.2.1",
+		"config": "^3.0.1",
+		"connect-mongo": "^2.0.3",
+		"cors": "^2.8.4",
+		"express": "^4.15.5",
+		"express-form": "^0.12.6",
+		"express-session": "^1.15.5",
+		"log4js": "^4.0.1",
+		"moment": "^2.22.2",
+		"nodemailer": "^5.1.1",
+		"passport": "^0.4.0",
+		"pg": "^7.8.2",
+		"randomstring": "^1.1.5",
+		"sequelize": "^4.43.0",
+		"sequelize-cli": "^5.4.0",
+		"supertest": "^3.0.0",
+		"validator": "^10.4.0"
+	},
+	"devDependencies": {
+		"apidoc": "^0.17.6",
+		"chai": "^4.1.2",
+		"cross-env": "^5.1.4",
+		"eslint": "^5.12.1",
+		"eslint-config-airbnb": "^17.1.0",
+		"eslint-plugin-import": "^2.16.0",
+		"eslint-plugin-jsx-a11y": "^6.0.3",
+		"eslint-plugin-react": "^7.7.0",
+		"migrate": "^1.2.0",
+		"mocha": "^5.0.2",
+		"nyc": "^13.1.0"
+	}
+}

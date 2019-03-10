@@ -1,0 +1,8 @@
+{
+  "environment": "production",
+  "db": {
+    "username": "id",
+    "password": "",
+    "database": "realtoff_production"
+  }
+}

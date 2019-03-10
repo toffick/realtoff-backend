@@ -1,0 +1,22 @@
+{
+	"environment": "development",
+	"cors": false,
+	"db": {
+		"host": "127.0.0.1",
+		"port": "5432",
+		"username": "id",
+		"password": "",
+		"database": "realtoff_development",
+		"dialect": "postgres"
+	},
+	"logger": {
+		"level": "trace"
+	},
+	"port": 3000,
+	"mailer": {
+		"service": "gmail",
+		"user": "nlppftestmailer@gmail.com",
+		"pass": "c[,{Qcztvl"
+	},
+	"session_secret": "KB}3S}QBh]"
+}
