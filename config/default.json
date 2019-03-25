@@ -1,22 +1,40 @@
 {
-	"environment": "development",
-	"cors": false,
-	"db": {
-		"host": "127.0.0.1",
-		"port": "5432",
-		"username": "id",
-		"password": "",
-		"database": "realtoff_development",
-		"dialect": "postgres"
-	},
-	"logger": {
-		"level": "trace"
-	},
-	"port": 3000,
-	"mailer": {
-		"service": "gmail",
-		"user": "nlppftestmailer@gmail.com",
-		"pass": "c[,{Qcztvl"
-	},
-	"session_secret": "KB}3S}QBh]"
+  "cors": false,
+  "db": {
+    "host": "127.0.0.1",
+    "port": "5432",
+    "username": "",
+    "password": "",
+    "database": "realtoff_development",
+    "dialect": "postgres"
+  },
+  "logger": {
+    "level": "trace"
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 5,
+    "user": "",
+    "password": ""
+  },
+  "website": {
+    "enabled": true,
+    "host": "0.0.0.0",
+    "siteTitle": "PROPOOL",
+    "port": 6361
+  },
+  "EMAIL_SETTINGS": {
+    "TRANSPORTER": {
+      "SENDER": "nlppftestmailer@gmail.com",
+      "HOST": "",
+      "PORT": 587,
+      "SECURE": false,
+      "AUTH": {
+        "USER": "nlppftestmailer@gmail.com",
+        "PASSWORD": "c[,{Qcztvl"
+      }
+    },
+    "RECOVERY_PASSWORD_URL": "https://site.com/reset-password?token=:hash"
+  }
 }

@@ -2,18 +2,10 @@
 	"apps": [
 		{
 			"name": "server",
-			"script": "server.js",
+			"script": "init.http.server.js",
 			"max_memory_restart": "2000M",
 			"env": {
-				"MODULE": "api"
-			}
-		},
-		{
-			"name": "cron",
-			"script": "server.js",
-			"max_memory_restart": "2000M",
-			"env": {
-				"MODULE": "cron"
+				"MODULE": "development"
 			}
 		}
 	]

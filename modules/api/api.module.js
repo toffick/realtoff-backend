@@ -1,16 +1,17 @@
+const log4js = require('log4js');
 const logger = require('log4js').getLogger('api.module.js');
-const express = require('express');
-const path = require('path');
+
+logger.level = 'debug';
+
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const session = require('express-session');
 const passport = require('passport');
-const MongoStore = require('connect-mongo')(session);
-const mongoose = require('mongoose');
+const JwtStrategy = require('passport-jwt').Strategy;
+const { ExtractJwt } = require('passport-jwt');
+const RateLimiter = require('express-rate-limit');
+const AccessToken = require('../../components/access.token');
+const ResponseErrors = require('../../components/errors/response.errors');
 
-const MethodNotAllowedError = require('../../errors/method-not-allowed.error');
-const RestError = require('../../errors/rest.error');
-const FormError = require('../../errors/form.error');
 
 /**
  * A namespace.
@@ -21,160 +22,281 @@ class ApiModule {
 
 	/**
 	 *
-	 * @param {{port, cors}} opts.config
-	 * @param {RavenHelper} opts.ravenHelper
-	 * @param {AuthController} opts.authController
-	 * @param {UserController} opts.userController
+	 * @param config
+	 * @param {UserRepository} userRepository
+	 * @param {UserController} userController
+	 * @param {TokenGeneratorService} tokenGeneratorService
+	 * @param {ErrorsHandler} errorsHandler
 	 */
-	constructor(opts) {
-		this.config = opts.config;
-		this.ravenHelper = opts.ravenHelper;
-		this.authController = opts.authController;
-		this.userController = opts.userController;
+	constructor({
+		config,
+		userRepository,
+		userController,
+		tokenGeneratorService,
+		errorsHandler,
+	}) {
+		this.config = config;
+		this.userController = userController;
+		this.userRepository = userRepository;
+		this.errorsHandler = errorsHandler;
+		this.tokenGeneratorService = tokenGeneratorService;
 
 		this.app = null;
-		this.server = null;
 	}
 
 	/**
 	 * Start HTTP server listener
-	 * @return {Promise<void>}
 	 */
-	initModule() {
-		return new Promise((resolve) => {
-			logger.trace('Start HTTP server initialization');
+	initModule(options, next) {
 
-			const sessionStore = new MongoStore({ mongooseConnection: mongoose.connection });
+		this.app = options.router;
 
-			this.app = express();
-			this.app.use(bodyParser.urlencoded({ extended: true }));
-			this.app.use(bodyParser.json());
-			this.app.use(express.static(path.resolve('public')));
+		this.app.use(passport.initialize());
+		this.app.use(bodyParser.urlencoded({ extended: true }));
+		this.app.use(bodyParser.json());
+		this.app.use(log4js.connectLogger(logger, { level: 'info' }));
 
-			if (this.config.cors) {
-				const corsOptions = {
-					origin: (origin, callback) => {
-						callback(null, true);
-					},
-					credentials: true,
-					methods: ['GET', 'PUT', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
-					headers: ['x-user', 'X-Signature', 'accept', 'content-type'],
-				};
+		if (this.config.cors) {
+			const corsOptions = {
+				origin: (origin, callback) => {
+					callback(null, true);
+				},
+				credentials: true,
+				methods: ['GET', 'PUT', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
+				allowedHeaders: ['x-user', 'X-Signature', 'accept', 'content-type', 'Authorization', 'authorization'],
+			};
 
-				this.app.use(cors(corsOptions));
-				this.app.options('*', cors());
+			this.app.use(cors(corsOptions));
+			this.app.options('*', cors());
+		}
+
+		const jwtOptions = {
+			jwtFromRequest: ExtractJwt.versionOneCompatibility({}),
+			secretOrKey: this.config.jwtsecret,
+		};
+
+		passport.use(new JwtStrategy(jwtOptions, ((payload, done) => done(null, payload))));
+
+		this._setRateLimits();
+		this._initRoutes();
+
+		return next();
+
+	}
+
+	_setRateLimits() {
+
+		//TODO delays
+		const signUpLimiterOptions = {
+			windowMs: 10 * 60 * 1000,
+			max: 5,
+			message: 'Too many attempts to sign up from this IP',
+		};
+
+		const signInLimiterOptions = {
+			windowMs: 60 * 1000,
+			max: 10,
+			message: 'Too many attempts to sign in from this IP',
+		};
+
+		const signUpLimiter = new RateLimiter(this.configureLimiterOptions(signUpLimiterOptions));
+		const signInLimiter = new RateLimiter(this.configureLimiterOptions(signInLimiterOptions));
+
+		this.app.use('/sign-up', signUpLimiter);
+		this.app.use('/sign-in', signInLimiter);
+
+	}
+
+
+	/**
+	 * @description append default options and override handler
+	 * @param {Object} rateLimiterOptions
+	 * @param {Number} rateLimiterOptions.windowMs
+	 * @param {Number} rateLimiterOptions.delayAfter
+	 * @param {Number} rateLimiterOptions.delayMs
+	 * @param {Number} rateLimiterOptions.max
+	 * @param {String} rateLimiterOptions.message
+	 * @returns {Object}
+	 */
+	configureLimiterOptions(rateLimiterOptions) {
+
+		if (!rateLimiterOptions) {
+			return false;
+		}
+
+		rateLimiterOptions.statusCode = 429;
+		rateLimiterOptions.headers = 1;
+		rateLimiterOptions.message = `${rateLimiterOptions.message}, please try again in ${Math.ceil(rateLimiterOptions.windowMs / 1000)} seconds`;
+
+		const {
+			headers,
+			windowMs,
+			message,
+			statusCode,
+		} = rateLimiterOptions;
+
+		rateLimiterOptions.handler = (req, res) => {
+
+			if (headers) {
+				res.setHeader('Retry-After', Math.ceil(windowMs / 1000));
 			}
 
-			this.app.use(session({
-				name: 'crypto.sid',
-				secret: this.config.session_secret,
-				cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }, // 7 days
-				resave: false,
-				saveUninitialized: false,
-				rolling: true,
-				store: sessionStore,
-			}));
-			this.app.use(passport.initialize());
-			this.app.use(passport.session());
+			this._sendError(res, message, statusCode);
+		};
 
-			this.app.use(express.static('templates/assets'));
+		return rateLimiterOptions;
 
-			passport.serializeUser((user, done) => done(null, user));
-			passport.deserializeUser((user, done) => done(null, user));
-
-			this.server = this.app.listen(this.config.port, () => {
-				logger.info(`API APP REST listen ${this.config.port} Port`);
-				this._initRestRoutes();
-				resolve();
-			});
-		});
 	}
 
 	/**
-	 * Bind routers
+	 *
+	 * @param {Object} req
+	 * @param {Function} next
 	 */
-	_initRestRoutes() {
-		/** @type [BaseController] */
-		const allControllers = [
-			this.authController,
-			this.userController,
-		];
-		allControllers.forEach((controller) => controller.init(this.addRestHandler.bind(this)));
+	isAuthenticated({ req }, next) {
 
-		if (process.env.NODE_ENV === 'development') {
-			this.app.use('/apidoc', express.static('apidoc'));
-		}
+		return passport.authenticate('jwt', { session: false }, (err, payload) => {
 
-		this.addRestHandler('get', '*', () => {
-			throw new MethodNotAllowedError();
-		});
+			if (err) {
+				return next(err);
+			}
+
+			if (!payload || !payload.id) {
+				return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', '', 403));
+			}
+
+			req.token = new AccessToken(req.header('Authorization'), payload);
+
+			const accessToken = req.token.getRawToken();
+
+			return this.tokenGeneratorService.isValidToken(accessToken).then((isValidToken) => {
+
+				if (!isValidToken) {
+					return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', '', 403));
+				}
+
+				return next();
+
+			}).catch(() => next(this.errorsHandler.createValidateErrorsFromText('Forbidden', '', 403)));
+
+		})(req);
+
 	}
 
-	/** @typedef {('json','file')} ResType */
+	_initRoutes() {
 
-	/** @typedef {('get','post','patch')} Method */
+		this._addHandler('post', '/sign-up', this.userController.signUp.bind(this.userController));
+		this._addHandler('post', '/sign-in', this.userController.signIn.bind(this.userController));
+		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
+		this._addHandler('post', '/auth', this.isAuthenticated.bind(this), this.userController.isAuth.bind(this.userController));
+		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
 
-	/**
-	 * @param {Method} method
-	 * @param {ResType?} responseType
-	 * @param {String} route
-	 * @param args
-	 */
-	addRestHandler(method, responseType, route, ...args) {
-		if (!['json', 'file'].includes(responseType)) {
-			args.unshift(route);
-			route = responseType;
-			responseType = 'json';
-		}
-		const action = args.pop();
-		this.app[method](route, async (req, res) => {
-			try {
-				args.forEach((handler) => handler()(req, res));
-				req.form = req.form || { isValid: true };
-				this.traceRequest(req, req.form);
-				if (!req.form.isValid) { // noinspection ExceptionCaughtLocallyJS
-					throw new FormError(req.form.getErrors());
-				}
-				const result = await action({ form: req.form, user: req.user, req });
-				switch (responseType) {
-					case 'json':
-						return res.status(200).json({
-							result: result || null,
-							status: 200,
-						});
-					case 'file':
-						return res.send(result);
-					default:
-						throw this.ravenHelper.error(new Error('unknown responseType'), 'api.module addRestHandler', {
-							method, responseType, route,
-						});
-				}
-			} catch (error) {
-				let restError = error;
-				if (!(error instanceof RestError)) {
-					logger.error(error);
-					restError = { status: 500, message: 'server side error' };
-				}
-				return res.status(restError.status).json({
-					error: restError.details || restError.message,
-					status: restError.status,
+		this.app.get('*', (req, res) => res.status(405).json({
+			error: 'Method Not Allowed',
+			status: 405,
+		}));
+
+		this.app.use((err, req, res, next) => {
+			if (err.status && err.status !== 500) {
+				return res.status(err.status).json({
+					error: err,
+					status: err.status,
 				});
 			}
+
+			return next();
 		});
+
 	}
 
-	traceRequest(req, form) {
-		const traceForm = { ...form };
-		['password'].forEach((hiddableField) => {
-			if (form[hiddableField]) {
-				traceForm[hiddableField] = form[hiddableField].replace(/./ig, '*');
+	_addHandler(...params) {
+
+		const args = Array.prototype.slice.call(params);
+		const type = args.splice(0, 1)[0];
+		const url = args.splice(0, 1)[0];
+		const decoratedFunctions = [];
+
+		args.forEach((action, idx) => {
+
+			decoratedFunctions.push((req, res, next) => action({
+				req,
+				query: req.query,
+				params: req.params,
+				body: req.body,
+			}, (err, result) => {
+
+				if (err) {
+
+					if (err instanceof ResponseErrors) {
+						return res.status(err.getCode()).json(err.getResponseErrors());
+					}
+
+					return res.status(500).json({ errors: [err] });
+				}
+
+				if (idx < args.length - 1) {
+					return next();
+				}
+
+				return res.status(200).json(result);
+
+			}));
+
+		});
+
+		return this.app[type].apply(this.app, [url, ...decoratedFunctions]);
+
+	}
+
+	traceRequest(req, res, next) {
+		const formForLog = Object.assign({}, req.body, req.query);
+
+		if (formForLog.password) {
+			formForLog.password = formForLog.password.replace(/./ig, '*');
+		}
+		if (formForLog.password_confirmation) {
+			formForLog.password_confirmation = formForLog.password_confirmation.replace(/./ig, '*');
+		}
+		if (formForLog.current_password) {
+			formForLog.current_password = formForLog.current_password.replace(/./ig, '*');
+		}
+		if (formForLog.new_password) {
+			formForLog.new_password = formForLog.new_password.replace(/./ig, '*');
+		}
+		logger.trace(`${req.method.toUpperCase()} Request ${req.originalUrl}`, JSON.stringify(formForLog));
+		next();
+	}
+
+	processActionMiddleware(action, req, res) {
+		let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+		if (ip) ip = ip.replace(/,.*/, '');
+		action({
+			form: req.form,
+			user: req.user,
+			req,
+			res,
+			ip,
+		}, (err, result) => {
+
+			if (err) {
+				return this._sendError(res, err, result);
 			}
+
+			return res.status(200).json(result);
 		});
-		logger.trace(`${req.method.toUpperCase()} Request ${req.originalUrl}`, JSON.stringify(traceForm));
 	}
 
-	close() {
-		this.server.close();
+
+	_sendError(res, message, status) {
+		return res.status(status || 500).json({
+			code: status || 500,
+			errors: [
+				{
+					message,
+					param: '',
+				},
+			],
+		});
 	}
 
 }
