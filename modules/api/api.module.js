@@ -186,6 +186,7 @@ class ApiModule {
 	_initRoutes() {
 
 		this._addHandler('post', '/sign-up', this.userController.signUp.bind(this.userController));
+		this._addHandler('post', '/sign-up/continue', this.isAuthenticated.bind(this), this.userController.setPersonalInfo.bind(this.userController));
 		this._addHandler('post', '/sign-in', this.userController.signIn.bind(this.userController));
 		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
 		this._addHandler('post', '/auth', this.isAuthenticated.bind(this), this.userController.isAuth.bind(this.userController));

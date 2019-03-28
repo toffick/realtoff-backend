@@ -54,7 +54,7 @@ class SignInForm extends BaseForm {
 			return false;
 		}
 
-		const user = await this.userRepository.fetchActiveUserByNormalizeEmail(this.email);
+		const user = await this.userRepository.fetchActiveUserByEmail(this.email);
 
 		if (!user) {
 			this.addError('Invalid email or password', '');

@@ -3,9 +3,11 @@ const _ = require('lodash');
 const bluebird = require('bluebird');
 const AuthForm = require('../../../components/forms/auth.form');
 const SignUpForm = require('../../../components/forms/sign.up.form');
+const PersonalInfoForm = require('../../../components/forms/personal.info.form');
 const SignInForm = require('../../../components/forms/sign.in.form');
 const SignOutForm = require('../../../components/forms/sign.out.form');
 const RefreshTokenFrom = require('../../../components/forms/refresh.jwt.token.form');
+const { TOKEN_TYPES } = require('../../../constants/constants');
 
 /**
  * A namespace.
@@ -52,13 +54,14 @@ class UserController {
 	 */
 	async signUp(data, next) {
 
-		const { email, password } = data.body;
+		const { email, password, nickname } = data.body;
 
 		try {
 
 			const signUpForm = new SignUpForm({
 				email,
 				password,
+				nickname,
 				userRepository: this.userRepository,
 			});
 
@@ -71,6 +74,7 @@ class UserController {
 			const userResponse = await this.usersService.createUser(
 				signUpForm.email,
 				signUpForm.password,
+				signUpForm.nickname,
 			);
 
 			return next(null, userResponse);
@@ -84,6 +88,54 @@ class UserController {
 
 	}
 
+	/**
+	 *
+	 * @param data
+	 * @param next
+	 * @returns {Promise<void>}
+	 */
+	async setPersonalInfo(data, next) {
+		const {
+			first_name: firstName,
+			telephone_number: telephoneNumber,
+			is_personal_lessor: isPersonalLessor,
+		} = data.body;
+
+		const { token } = data.req;
+		const { id } = token.payload;
+
+		try {
+
+			const setPersonalInfoForm = new PersonalInfoForm({
+				firstName,
+				telephoneNumber,
+				isPersonalLessor,
+				userId: id,
+				userRepository: this.userRepository,
+			});
+
+			const isValid = await setPersonalInfoForm.validate();
+
+			if (!isValid) {
+				return next(this.errorsHandler.createValidateErrorsFromArray(setPersonalInfoForm.getErrors()));
+			}
+
+			const userResponse = await this.usersService.setPersonalInfo(
+				id,
+				setPersonalInfoForm.firstName,
+				setPersonalInfoForm.telephoneNumber,
+				setPersonalInfoForm.isPersonalLessor,
+			);
+
+			return next(null, { success: userResponse });
+
+		} catch (e) {
+
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
 
 	/**
 	 *

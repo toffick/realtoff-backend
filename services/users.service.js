@@ -23,17 +23,17 @@ class UsersService {
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
-					config,
-					tokenGeneratorService,
-					userRepository,
-					userTokenRepository,
-					signOutTokenRepository,
-					temporaryRepository,
-					emailTransporter,
-					emailTemplateRenderer,
-					eventBus,
-					dbConnection,
-				}) {
+		config,
+		tokenGeneratorService,
+		userRepository,
+		userTokenRepository,
+		signOutTokenRepository,
+		temporaryRepository,
+		emailTransporter,
+		emailTemplateRenderer,
+		eventBus,
+		dbConnection,
+	}) {
 		this.config = config;
 
 		this.tokenGeneratorService = tokenGeneratorService;
@@ -57,14 +57,14 @@ class UsersService {
 	 * @param {String} password
 	 * @return {Promise.<{user: *, access_token: String, refresh_token: String}>}
 	 */
-	async createUser(email, password) {
+	async createUser(email, password, nickname) {
 
 		const confirmHash = await this.tokenGeneratorService.generateRandomToken();
 
 		const user = await this.dbConnection.sequelize.transaction({
 			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
 		}, async (transaction) => {
-			const newUser = await this.userRepository.createUser(email, password, { transaction });
+			const newUser = await this.userRepository.createUser(email, password, nickname, { transaction });
 			// await this.userEmailRepository.createUserEmailData(newUser.id, email, emailNormalize, confirmHash, { transaction });
 
 			return newUser;
@@ -91,6 +91,23 @@ class UsersService {
 		return userResponse;
 	}
 
+	/**
+	 *
+	 * @param userId
+	 * @param firstName
+	 * @param telephoneNumber
+	 * @param isPersonalLessor
+	 * @returns {Promise<void>}
+	 */
+	async setPersonalInfo(userId, firstName, telephoneNumber, isPersonalLessor) {
+		const [result] = await this.userRepository.updateUserPersonalInfo(userId, firstName, telephoneNumber, isPersonalLessor);
+
+		if (!result) {
+			throw new NotFoundError('Not Found', 'user_id');
+		}
+
+		return result === 1;
+	}
 
 	/**
 	 *
@@ -99,7 +116,7 @@ class UsersService {
 	 */
 	async getActiveUserForPublicById(userId) {
 
-		const user = await this.userRepository.fetchActiveUserById(userId);
+		const user = await this.userRepository.fetchUserById(userId);
 
 		if (!user) {
 			throw new NotFoundError('Not Found', 'user_id');
@@ -126,7 +143,7 @@ class UsersService {
 			throw new NotFoundError('Not Found', 'token');
 		}
 
-		const user = await this.userRepository.fetchActiveUserById(token.getUserId());
+		const user = await this.userRepository.fetchUserById(token.getUserId());
 
 		if (!user) {
 			throw new NotFoundError('Not Found', 'user_id');
@@ -151,7 +168,7 @@ class UsersService {
 							  email,
 						  }) {
 		if (email) {
-			const user = await this.userRepository.fetchActiveUserByNormalizeEmail(email);
+			const user = await this.userRepository.fetchActiveUserByEmail(email);
 
 			if (!user) {
 				throw new NotFoundError('Not Found', 'user');
@@ -271,7 +288,7 @@ class UsersService {
 
 		const { user_id: userId, id: userTokenId } = userToken;
 
-		const activeUser = await this.userRepository.fetchActiveUserById(userId);
+		const activeUser = await this.userRepository.fetchUserById(userId);
 
 		if (!activeUser) {
 			throw new NotFoundError('Not Found', 'user');
@@ -349,7 +366,7 @@ class UsersService {
 	 */
 	async isUserEmailConfirmed(userId) {
 
-		const user = await this.userRepository.fetchActiveUserById(userId);
+		const user = await this.userRepository.fetchUserById(userId);
 
 		let result = false;
 

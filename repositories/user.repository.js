@@ -21,14 +21,16 @@ class UserRepository {
 	 * @param {String} email
 	 * @param {String} emailNormalize
 	 * @param {String} password
+	 * @param {String} nickname
 	 * @return {Promise.<*>}
 	 */
-	async createUser(email, password, { transaction } = { transaction: undefined }) {
+	async createUser(email, password, nickname, { transaction } = { transaction: undefined }) {
 
 		const user = await this.models.User.create({
 			email,
 			password,
 			password_hash: password,
+			second_name: nickname,
 		}, { transaction });
 
 		return user;
@@ -39,7 +41,7 @@ class UserRepository {
 	 * @param {Number} userId
 	 * @return {Promise.<Model>}
 	 */
-	async fetchActiveUserById(userId, { transaction } = { transaction: undefined }) {
+	async fetchUserById(userId, { transaction } = { transaction: undefined }) {
 
 		const user = await this.models.User.findOne({
 			where: {
@@ -53,16 +55,42 @@ class UserRepository {
 
 	/**
 	 *
-	 * @param {String} emailNormalize
+	 * @param {String} email
 	 * @return {Promise.<Model>}
 	 */
-	async fetchActiveUserByNormalizeEmail(emailNormalize) {
+	async fetchActiveUserByEmail(email) {
 
 		const user = await this.models.User.findOne({
 			where: {
-				email: emailNormalize,
+				email,
 			},
 		});
+
+		return user;
+	}
+
+	/**
+	 *
+	 * @param userId
+	 * @param firstName
+	 * @param telephoneNumber
+	 * @param isPersonalLessor
+	 * @returns {Promise<*>}
+	 */
+	async updateUserPersonalInfo(userId, firstName, telephoneNumber, isPersonalLessor) {
+
+		const user = await this.models.User.update(
+			{
+				first_name: firstName,
+				telephone_number: telephoneNumber,
+				is_personal_lessor: isPersonalLessor,
+			},
+			{
+				where: {
+					id: userId,
+				},
+			},
+		);
 
 		return user;
 	}
