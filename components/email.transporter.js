@@ -23,13 +23,11 @@ class EmailTransporter {
 		this.config = config;
 
 		this.transporter = nodemailer.createTransport({
-			host: this.config.EMAIL_SETTINGS.TRANSPORTER.HOST,
-			port: this.config.EMAIL_SETTINGS.TRANSPORTER.PORT,
-			secure: this.config.EMAIL_SETTINGS.TRANSPORTER.SECURE, // secure:true for port 465, secure:false for port 587
+			service: this.config.EMAIL_SETTINGS.TRANSPORTER.SERVICE,
 			auth: {
 				user: this.config.EMAIL_SETTINGS.TRANSPORTER.AUTH.USER,
-				pass: this.config.EMAIL_SETTINGS.TRANSPORTER.AUTH.PASSWORD
-			}
+				pass: this.config.EMAIL_SETTINGS.TRANSPORTER.AUTH.PASSWORD,
+			},
 		});
 
 	}

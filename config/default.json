@@ -26,15 +26,16 @@
   },
   "EMAIL_SETTINGS": {
     "TRANSPORTER": {
-      "SENDER": "nlppftestmailer@gmail.com",
-      "HOST": "",
-      "PORT": 587,
-      "SECURE": false,
+      "SERVICE": "gmail",
+      "SENDER": "",
       "AUTH": {
-        "USER": "nlppftestmailer@gmail.com",
-        "PASSWORD": "c[,{Qcztvl"
+        "USER": "",
+        "PASSWORD": ""
       }
-    },
-    "RECOVERY_PASSWORD_URL": "https://site.com/reset-password?token=:hash"
-  }
+    }
+  },
+  "PUBLIC_PATHS": {
+    "PROFILE": "/profile"
+  },
+  "YANDEX_API_KEY": ""
 }

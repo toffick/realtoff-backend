@@ -31,6 +31,10 @@ class BaseForm {
 		return this.errors;
 	}
 
+	getFormObject(){
+		return {};
+	}
+
 }
 
 module.exports = BaseForm;

@@ -38,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.BOOLEAN,
 			allowNull: true,
 		},
+		email_confirm_hash: {
+			type: DataTypes.STRING,
+			allowNull: true,
+			defaultValue: false,
+		},
 		created_at: {
 			allowNull: false,
 			type: DataTypes.DATE,

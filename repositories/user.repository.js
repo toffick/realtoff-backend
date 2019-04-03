@@ -22,15 +22,17 @@ class UserRepository {
 	 * @param {String} emailNormalize
 	 * @param {String} password
 	 * @param {String} nickname
+	 * @param {String} confirmHash
 	 * @return {Promise.<*>}
 	 */
-	async createUser(email, password, nickname, { transaction } = { transaction: undefined }) {
+	async createUser(email, password, nickname, confirmHash, { transaction } = { transaction: undefined }) {
 
 		const user = await this.models.User.create({
 			email,
 			password,
 			password_hash: password,
 			second_name: nickname,
+			email_confirm_hash: confirmHash,
 		}, { transaction });
 
 		return user;
@@ -95,6 +97,27 @@ class UserRepository {
 		return user;
 	}
 
+	/**
+	 *
+	 * @param hash
+	 * @param transaction
+	 * @returns {Promise<void>}
+	 */
+	async confirmUserEmail(hash, { transaction } = { transaction: undefined }) {
+		const update = await this.models.User.update(
+			{
+				email_confirm_hash: null,
+				is_email_confirmed: true,
+			},
+			{
+				where: {
+					email_confirm_hash: hash,
+				},
+			},
+		);
+
+		return update;
+	}
 
 	async findByNameAndPassword(email, password, { transaction } = { transaction: undefined }) {
 		return this.models.User.findOne({

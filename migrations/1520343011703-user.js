@@ -15,6 +15,10 @@ module.exports = {
 			type: Sequelize.STRING,
 			allowNull: false,
 		},
+		email_confirm_hash: {
+			allowNull: true,
+			type: Sequelize.STRING,
+		},
 		is_email_confirmed: {
 			type: Sequelize.BOOLEAN,
 			allowNull: true,

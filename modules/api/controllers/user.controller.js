@@ -33,13 +33,14 @@ class UserController {
 		tokenGeneratorService,
 		errorsHandler,
 		redisConnection,
+		config,
 	}) {
 		this.userTokenRepository = userTokenRepository;
 		this.userRepository = userRepository;
 
 		this.usersService = usersService;
 		this.tokenGeneratorService = tokenGeneratorService;
-
+		this.config = config;
 		this.errorsHandler = errorsHandler;
 
 		this.redisClient = bluebird.promisifyAll(redisConnection.getClient());
@@ -298,16 +299,17 @@ class UserController {
 	 */
 	async confirmEmail(data, next) {
 		try {
-			const { hash } = data.body;
+			const { hash } = data.req.query;
 
-			const user = await this.usersService.confirmUserEmail(hash);
+			const updateInfo = await this.userRepository.confirmUserEmail(hash);
 
-			if (!user) {
+			if (!updateInfo) {
 				return next('User is not found!');
 			}
+
 			return next(null, {
-				data: {
-					confirmed: true,
+				redirect: {
+					path: this.config.PUBLIC_PATH.PROFILE,
 				},
 			});
 		} catch (err) {

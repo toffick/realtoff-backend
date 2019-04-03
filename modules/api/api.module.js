@@ -23,21 +23,21 @@ class ApiModule {
 	/**
 	 *
 	 * @param config
-	 * @param {UserRepository} userRepository
+	 * @param {RealtyController} realtyController
 	 * @param {UserController} userController
 	 * @param {TokenGeneratorService} tokenGeneratorService
 	 * @param {ErrorsHandler} errorsHandler
 	 */
 	constructor({
 		config,
-		userRepository,
+		realtyController,
 		userController,
 		tokenGeneratorService,
 		errorsHandler,
 	}) {
 		this.config = config;
 		this.userController = userController;
-		this.userRepository = userRepository;
+		this.realtyController = realtyController;
 		this.errorsHandler = errorsHandler;
 		this.tokenGeneratorService = tokenGeneratorService;
 
@@ -86,7 +86,7 @@ class ApiModule {
 
 	_setRateLimits() {
 
-		//TODO delays
+		// TODO delays
 		const signUpLimiterOptions = {
 			windowMs: 10 * 60 * 1000,
 			max: 5,
@@ -191,6 +191,8 @@ class ApiModule {
 		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
 		this._addHandler('post', '/auth', this.isAuthenticated.bind(this), this.userController.isAuth.bind(this.userController));
 		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
+		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
+		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
 
 		this.app.get('*', (req, res) => res.status(405).json({
 			error: 'Method Not Allowed',
@@ -237,6 +239,10 @@ class ApiModule {
 
 				if (idx < args.length - 1) {
 					return next();
+				}
+
+				if (result.redirect) {
+					return res.redirect(301, result.path);
 				}
 
 				return res.status(200).json(result);
