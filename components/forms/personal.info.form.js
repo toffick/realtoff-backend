@@ -51,7 +51,6 @@ class PersonalInfoForm extends BaseForm {
 			this.addError('invalid telephoneNumber', 'telephone_number');
 		}
 
-
 		const user = await this.userRepository.fetchUserById(this.userId);
 
 		if (!user) {

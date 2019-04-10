@@ -11,32 +11,36 @@ module.exports = {
 		user_id: {
 			allowNull: false,
 			type: Sequelize.INTEGER,
+			references: {
+				model: 'user',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
+		},
+		address_id: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			references: {
+				model: 'address',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
+		},
+		description_id: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			references: {
+				model: 'description',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
 		},
 		type: {
 			type: Sequelize.ENUM,
 			values: Object.values(REAL_TYPES),
-		},
-		city: {
-			allowNull: false,
-			type: Sequelize.STRING(255),
-		},
-		street: {
-			allowNull: false,
-			type: Sequelize.STRING(255),
-		},
-		house_number: {
-			allowNull: false,
-			type: Sequelize.STRING(8),
-		},
-		floor_number: {
-			allowNull: true,
-			defaultValue: null,
-			type: Sequelize.INTEGER,
-		},
-		floor_total: {
-			allowNull: true,
-			defaultValue: null,
-			type: Sequelize.INTEGER,
 		},
 		price_per_month: {
 			allowNull: false,
@@ -46,17 +50,9 @@ module.exports = {
 			type: Sequelize.ENUM,
 			values: Object.values(CURRENCY_TYPES),
 		},
-		description: {
-			allowNull: false,
-			type: Sequelize.STRING(2000),
-		},
-		coordinates: {
-			allowNull: false,
-			type: Sequelize.GEOMETRY('POINT'),
-		},
-		permits_mask: {
-			allowNull: false,
-			type: Sequelize.INTEGER,
+		additional_phone_number: {
+			type: Sequelize.STRING,
+			allowNull: true,
 		},
 		created_at: {
 			allowNull: false,

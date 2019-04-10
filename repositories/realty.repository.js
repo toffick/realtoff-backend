@@ -1,6 +1,5 @@
 class RealtyRepository {
 
-
 	constructor({ dbConnection, config }) {
 		this.dbConnection = dbConnection;
 		this.models = dbConnection.models;
@@ -11,31 +10,21 @@ class RealtyRepository {
 	 *
 	 * @param offerObject
 	 * @param userId
-	 * @returns {Promise<boolean>}
+	 * @param descriptionId
+	 * @param addressId
+	 * @returns {Promise<*>}
 	 */
-	async createOffer(offerObject, userId) {
-		const coordinates = {
-			type: 'Point',
-			coordinates: [
-				offerObject.coordinates.latitudeBN.toString(),
-				offerObject.coordinates.longitudeBN.toString(),
-			],
-		};
+	async createOffer(offerObject, userId, descriptionId, addressId, { transaction } = { transaction: undefined }) {
 
 		const offer = await this.models.Offer.create({
 			user_id: userId,
+			description_id: descriptionId,
+			address_id: addressId,
 			type: offerObject.type,
-			city: offerObject.city,
-			street: offerObject.street,
-			house_number: offerObject.houseNumber,
-			floor_number: offerObject.floorNumber,
-			floor_total: offerObject.floorTotal,
+			additional_phone_number: offerObject.additionalTelephoneNumber,
 			price_per_month: offerObject.pricePerMonth,
 			currency: offerObject.currency,
-			description: offerObject.description,
-			permits_mask: offerObject.permitsMask,
-			coordinates,
-		});
+		}, { transaction });
 
 		return offer;
 	}

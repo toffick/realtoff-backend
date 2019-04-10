@@ -37,7 +37,9 @@ class RealtyController {
 
 	async createOffer(data, next) {
 		const {
+			address,
 			type,
+			country_code: countryCode,
 			city,
 			street,
 			house_number: houseNumber,
@@ -48,6 +50,9 @@ class RealtyController {
 			currency,
 			description,
 			permits_mask: permitsMask,
+			additional_telephone_number: additionalTelephoneNumber,
+			room_total: roomTotal,
+			square_total: squareTotal,
 		} = data.body;
 
 		const { token } = data.req;
@@ -56,7 +61,9 @@ class RealtyController {
 		try {
 
 			const createOfferForm = new CreateOfferForm({
+				address,
 				type,
+				countryCode,
 				city,
 				street,
 				houseNumber,
@@ -67,6 +74,9 @@ class RealtyController {
 				currency,
 				description,
 				permitsMask,
+				additionalTelephoneNumber,
+				roomTotal,
+				squareTotal,
 			});
 
 			const isValid = await createOfferForm.validate();
@@ -75,9 +85,9 @@ class RealtyController {
 				return next(this.errorsHandler.createValidateErrorsFromArray(createOfferForm.getErrors()));
 			}
 
-			const offer = this.offerService.createOffer(createOfferForm.getFormObject(), id);
+			const offer = await this.offerService.createOffer(createOfferForm.getFormObject(), id);
 
-			return next(null, { success: offer });
+			return next(null, offer);
 
 		} catch (e) {
 

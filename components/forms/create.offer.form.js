@@ -1,13 +1,15 @@
-const BaseForm = require('./base.form');
-const { REAL_TYPES, CURRENCY_TYPES, RENT_PERMITS } = require('../../constants/constants');
-const validator = require('../validator');
 const BigNumber = require('bignumber.js');
+const iso = require('iso-3166-1');
+
+const BaseForm = require('./base.form');
+const { REAL_TYPES: REALTY_TYPES, CURRENCY_TYPES, RENT_PERMITS } = require('../../constants/constants');
+const validator = require('../validator');
 
 class CreateOfferForm extends BaseForm {
 
-
 	/**
 	 *
+	 * @param address
 	 * @param city
 	 * @param street
 	 * @param houseNumber
@@ -18,8 +20,13 @@ class CreateOfferForm extends BaseForm {
 	 * @param currency
 	 * @param description
 	 * @param permitsMask
+	 * @param additionalTelephoneNumber
+	 * @param type
+	 * @param roomTotal
+	 * @param squareTotal
 	 */
 	constructor({
+		address,
 		city,
 		street,
 		houseNumber,
@@ -30,21 +37,30 @@ class CreateOfferForm extends BaseForm {
 		currency,
 		description,
 		permitsMask,
+		additionalTelephoneNumber,
 		type,
+		roomTotal,
+		squareTotal,
+		countryCode,
 	}) {
 		super();
 
 		this.type = validator.trim(type);
+		this.address = validator.trim(address);
+		this.countryCode = validator.trim(countryCode);
 		this.city = validator.trim(city);
 		this.street = validator.trim(street);
 		this.houseNumber = validator.trim(houseNumber);
 		this.floorNumber = floorNumber;
 		this.floorTotal = floorTotal;
+		this.roomTotal = roomTotal;
 		this.coordinates = coordinates;
 		this.pricePerMonth = pricePerMonth;
 		this.currency = currency;
+		this.additionalTelephoneNumber = additionalTelephoneNumber;
 		this.description = validator.trim(description);
 		this.permitsMask = validator.trim(permitsMask);
+		this.squareTotal = squareTotal;
 	}
 
 	/**
@@ -52,47 +68,74 @@ class CreateOfferForm extends BaseForm {
 	 * @return {Promise.<*>}
 	 */
 	async validate() {
-		if (!REAL_TYPES[this.type.toUpperCase()]) {
+		if (!REALTY_TYPES[this.type.toUpperCase()]) {
 			this.addError('invalid realty type', 'type');
 		}
 
-		if (validator.isEmpty(this.city)) {
-			this.addError('city is required', 'city');
+		if (this.address) {
+			if (validator.isEmpty(this.address)) {
+				this.addError('address is required', 'address');
+			}
+
+		} else {
+
+			if (validator.isEmpty(this.countryCode)) {
+				this.addError('country is required', 'country');
+			}
+
+			if (!iso.whereAlpha2(this.countryCode)) {
+				this.addError('Invalid countryCode', 'country_code');
+			}
+
+			if (validator.isEmpty(this.city)) {
+				this.addError('city is required', 'city');
+			}
+
+			if (this.city.length > 255) {
+				this.addError('Invalid city length', 'city');
+			}
+
+			if (validator.isEmpty(this.street)) {
+				this.addError('street is required', 'street');
+			}
+
+			if (this.street.length > 255) {
+				this.addError('Invalid street length', 'street');
+			}
+
+			if (validator.isEmpty(this.houseNumber)) {
+				this.addError('houseNumber is required', 'house_number');
+			}
+
+			if (this.houseNumber.length > 10) {
+				this.addError('Invalid houseNumber', 'house_number');
+			}
+
 		}
 
-		if (this.city.length > 255) {
-			this.addError('Invalid city length', 'city');
+		if (this.type.toUpperCase() === REALTY_TYPES.FLAT) {
+			if (isNaN(this.floorNumber) || this.floorTotal < 1 || this.floorNumber - this.floorTotal > 0) {
+				this.addError('invalid floorNumber', 'floor_number');
+			}
+
+			if (isNaN(this.floorTotal) || this.floorNumber < 1 || this.floorNumber - this.floorTotal > 0) {
+				this.addError('invalid floorNumber', 'floor_total');
+			}
 		}
 
-		if (validator.isEmpty(this.street)) {
-			this.addError('street is required', 'street');
+		if (isNaN(this.squareTotal) || this.squareTotal < 1) {
+			this.addError('invalid squareTotal', 'square_total');
 		}
 
-		if (this.street.length > 255) {
-			this.addError('Invalid street length', 'street');
-		}
-
-		if (validator.isEmpty(this.houseNumber)) {
-			this.addError('houseNumber is required', 'house_number');
-		}
-
-		if (this.street.length > 10) {
-			this.addError('Invalid houseNumber', 'house_number');
-		}
-
-		if (isNaN(this.floorNumber) || this.floorTotal < 1 || this.floorNumber - this.floorTotal > 0) {
-			this.addError('invalid floorNumber', 'floor_number');
-		}
-
-		if (isNaN(this.floorTotal) || this.floorNumber < 1 || this.floorNumber - this.floorTotal > 0) {
-			this.addError('invalid floorNumber', 'floor_total');
+		if (isNaN(this.roomTotal) || this.roomTotal < 1) {
+			this.addError('invalid roomTotal', 'room_total');
 		}
 
 		if (isNaN(this.pricePerMonth) || this.pricePerMonth < 0) {
 			this.addError('invalid floorNumber', 'telephone_number');
 		}
 
-		if (this.description < 140 || this.description < 2000) {
+		if (this.description < 140 || this.description > 2000) {
 			this.addError('invalid description length. From 90 to 2000', 'telephone_number');
 		}
 
@@ -100,11 +143,11 @@ class CreateOfferForm extends BaseForm {
 			this.addError('invalid currency type', 'currency');
 		}
 
-		if (!/[01]+$/g.test(this.permitsMask)) {
-			this.addError('Wrong permitsMask signature', 'permits_mask');
+		if (!validator.isMobilePhone(this.additionalTelephoneNumber)) {
+			this.addError('invalid additionalTelephoneNumber', 'additional_telephone_number');
 		}
 
-		const integerMask = Number.parseInt(this.permitsMask, 2);
+		const integerMask = Number.parseInt(this.permitsMask, 10);
 		const maxMaskValue = Math.max(...Object.values(RENT_PERMITS));
 
 		if (integerMask > maxMaskValue) {
@@ -158,30 +201,38 @@ class CreateOfferForm extends BaseForm {
 
 	getFormObject() {
 		const {
+			squareTotal,
+			countryCode,
 			city,
 			street,
 			houseNumber,
 			floorNumber,
 			floorTotal,
-			coordinates,
+			roomTotal,
+			additionalTelephoneNumber,
 			pricePerMonth,
 			currency,
 			description,
 			permitsMask,
+			coordinates,
 			type,
 		} = this;
 
 		return {
+			countryCode,
 			city,
 			street,
 			houseNumber,
 			floorNumber: Number(floorNumber),
 			floorTotal: Number(floorTotal),
-			coordinates,
+			roomTotal: Number(roomTotal),
+			additionalTelephoneNumber,
 			pricePerMonth,
 			currency,
 			description,
-			permitsMask,
+			squareTotal,
+			permitsMask: Number(permitsMask),
+			coordinates,
 			type,
 		};
 	}

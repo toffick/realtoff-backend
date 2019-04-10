@@ -13,31 +13,29 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			type: DataTypes.INTEGER,
 		},
+		address_id: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			references: {
+				model: 'address',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
+		},
+		description_id: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			references: {
+				model: 'description',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
+		},
 		type: {
 			type: DataTypes.ENUM,
 			values: Object.values(REAL_TYPES),
-		},
-		city: {
-			allowNull: false,
-			type: DataTypes.STRING(255),
-		},
-		street: {
-			allowNull: false,
-			type: DataTypes.STRING(255),
-		},
-		house_number: {
-			allowNull: false,
-			type: DataTypes.STRING(8),
-		},
-		floor_number: {
-			allowNull: true,
-			defaultValue: null,
-			type: DataTypes.INTEGER,
-		},
-		floor_total: {
-			allowNull: true,
-			defaultValue: null,
-			type: DataTypes.INTEGER,
 		},
 		price_per_month: {
 			allowNull: false,
@@ -47,17 +45,9 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.ENUM,
 			values: Object.values(CURRENCY_TYPES),
 		},
-		description: {
-			allowNull: false,
-			type: DataTypes.STRING(2000),
-		},
-		coordinates: {
-			allowNull: false,
-			type: DataTypes.GEOMETRY('POINT'),
-		},
-		permits_mask: {
-			allowNull: false,
-			type: DataTypes.INTEGER,
+		additional_phone_number: {
+			type: DataTypes.STRING,
+			allowNull: true,
 		},
 		created_at: {
 			allowNull: false,
@@ -66,24 +56,12 @@ module.exports = (sequelize, DataTypes) => {
 		updated_at: {
 			allowNull: false,
 			type: DataTypes.DATE,
-		}
+		},
 	}, {
 		tableName: 'offer',
 		freezeTableName: true,
 		underscored: true,
 	});
-
-	Offer.associate = (models) => {
-		Offer.belongsTo(models.User, {
-			onDelete: 'CASCADE',
-			foreignKey: {
-				field: 'user_id',
-				allowNull: false,
-			},
-		});
-
-	};
-
 
 	return Offer;
 };
