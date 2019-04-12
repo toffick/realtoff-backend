@@ -1,3 +1,4 @@
+const iso = require('iso-3166-1');
 
 class OfferService {
 
@@ -21,8 +22,9 @@ class OfferService {
 
 	/**
 	 *
-	 * @param offerObject
-	 * @returns {Promise<void>}
+ 	 * @param offerObject
+	 * @param userId
+	 * @returns {Promise<*>}
 	 */
 	async createOffer(offerObject, userId) {
 
@@ -39,6 +41,34 @@ class OfferService {
 
 
 		return offer;
+	}
+
+	/**
+	 * get all available countries that is been using in OPEN offers
+	 * @returns {Promise<*>}
+	 */
+	async getOfferCountries() {
+		const coutryCodes = await this.realtyRepository.getCountriesOfOpenOffers();
+		const countries = coutryCodes.map((countryCodeObj) => {
+			const { country_code: countryCode } = countryCodeObj;
+			const country = iso.whereAlpha2(countryCode);
+
+			delete country.numeric;
+			delete country.alpha3;
+			return { country: country.country, code: country.alpha2 };
+		});
+
+		return countries;
+	}
+
+	/**
+	 * get all available cities by countryCode that is been using in OPEN offers
+	 * @param countyCode
+	 * @returns {Promise<*>}
+	 */
+	async getOfferCitiesByCountryCode(countyCode) {
+		const cities = await this.realtyRepository.getOfferCitiesByCountryCode(countyCode);
+		return cities.map(({ city }) => city);
 	}
 
 }

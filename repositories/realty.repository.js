@@ -29,6 +29,46 @@ class RealtyRepository {
 		return offer;
 	}
 
+	/**
+	 *
+	 * @returns {Promise<*>}
+	 */
+	async getCountriesOfOpenOffers() {
+		return this.dbConnection.sequelize.query(
+			`select DISTINCT  country_code 
+				from offer as o 
+				join address as a
+				on a.id = o.address_id
+				where o.status = 'OPEN'
+			`,
+			{
+				type: this.dbConnection.sequelize.QueryTypes.SELECT,
+			},
+		);
+
+	}
+
+	/**
+	 *
+	 * @returns {Promise<*>}
+	 */
+	async getOfferCitiesByCountryCode(countryCode) {
+		return this.dbConnection.sequelize.query(
+			`select DISTINCT city 
+				from offer as o 
+				join address as a
+				on a.id = o.address_id
+				where o.status = 'OPEN' and a.country_code = :countryCode
+			`,
+			{
+				replacements: {
+					countryCode
+				},
+				type: this.dbConnection.sequelize.QueryTypes.SELECT,
+			},
+		);
+
+	}
 
 }
 

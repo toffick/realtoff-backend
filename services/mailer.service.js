@@ -4,17 +4,15 @@ const handlebars = require('handlebars');
 class MailerService {
 
 	/**
-	 * @param {Object} opts
-	 * @param {String} opts.basePath
-	 * @param {AppConfig} opts.config
-	 * @param {RavenHelper} opts.ravenHelper
-	 * @param {MailerConnection} opts.mailerConnection
+	 *
+	 * @param config
+	 * @param mailerConnection
+	 * @param basePath
 	 */
-	constructor(opts) {
-		this.ravenHelper = opts.ravenHelper;
-		this.config = opts.config;
-		this.mailerConnection = opts.mailerConnection;
-		this._templatesFolder = `${opts.basePath}/templates/mailer`;
+	constructor({config, mailerConnection, basePath}) {
+		this.config = config;
+		this.mailerConnection = mailerConnection;
+		this._templatesFolder = `${basePath}/templates/mailer`;
 		this._initService();
 	}
 
@@ -59,9 +57,7 @@ class MailerService {
 	 */
 	sendMail(to, type, params) {
 		const { html, plainText } = this._templates[type];
-		if (!html && !plainText) {
-			throw this.ravenHelper.error(new Error('no such mail-template'), 'mailer.service sendMail', { type });
-		}
+
 		const subject = this._subjects[type] || 'PPFinance';
 		return this.mailerConnection.sendMail(to, subject, plainText(params), html(params));
 	}

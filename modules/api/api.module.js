@@ -193,6 +193,9 @@ class ApiModule {
 		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
 		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
 		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
+		this._addHandler('get', '/available-countries', this.realtyController.availableCountries.bind(this.realtyController));
+		this._addHandler('get', '/available-cities', this.realtyController.availableCities.bind(this.realtyController));
+		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
 
 		this.app.get('*', (req, res) => res.status(405).json({
 			error: 'Method Not Allowed',

@@ -68,6 +68,7 @@ class CreateOfferForm extends BaseForm {
 	 * @return {Promise.<*>}
 	 */
 	async validate() {
+		//TODO перечекать все пункты валидации
 		if (!REALTY_TYPES[this.type.toUpperCase()]) {
 			this.addError('invalid realty type', 'type');
 		}
@@ -80,7 +81,7 @@ class CreateOfferForm extends BaseForm {
 		} else {
 
 			if (validator.isEmpty(this.countryCode)) {
-				this.addError('country is required', 'country');
+				this.addError('countryCode is required', 'country');
 			}
 
 			if (!iso.whereAlpha2(this.countryCode)) {
@@ -114,32 +115,32 @@ class CreateOfferForm extends BaseForm {
 		}
 
 		if (this.type.toUpperCase() === REALTY_TYPES.FLAT) {
-			if (isNaN(this.floorNumber) || this.floorTotal < 1 || this.floorNumber - this.floorTotal > 0) {
+			if (!validator.isNumeric(this.floorNumber) || this.floorTotal < 1 || this.floorNumber - this.floorTotal > 0) {
 				this.addError('invalid floorNumber', 'floor_number');
 			}
 
-			if (isNaN(this.floorTotal) || this.floorNumber < 1 || this.floorNumber - this.floorTotal > 0) {
+			if (!validator.isNumeric(this.floorTotal) || this.floorNumber < 1 || this.floorNumber - this.floorTotal > 0) {
 				this.addError('invalid floorNumber', 'floor_total');
 			}
 		}
 
-		if (isNaN(this.squareTotal) || this.squareTotal < 1) {
+		if (!validator.isNumeric(this.squareTotal) || this.squareTotal < 1) {
 			this.addError('invalid squareTotal', 'square_total');
 		}
 
-		if (isNaN(this.roomTotal) || this.roomTotal < 1) {
+		if (!validator.isNumeric(this.roomTotal) || this.roomTotal < 1) {
 			this.addError('invalid roomTotal', 'room_total');
 		}
 
-		if (isNaN(this.pricePerMonth) || this.pricePerMonth < 0) {
-			this.addError('invalid floorNumber', 'telephone_number');
+		if (!validator.isNumeric(this.pricePerMonth) || this.pricePerMonth < 1) {
+			this.addError('invalid pricePerMonth', 'price_per_month');
 		}
 
 		if (this.description < 140 || this.description > 2000) {
-			this.addError('invalid description length. From 90 to 2000', 'telephone_number');
+			this.addError('invalid description length. From 90 to 2000', 'description');
 		}
 
-		if (!CURRENCY_TYPES[this.currency]) {
+		if (!CURRENCY_TYPES[this.currency.toUpperCase()]) {
 			this.addError('invalid currency type', 'currency');
 		}
 
@@ -150,7 +151,7 @@ class CreateOfferForm extends BaseForm {
 		const integerMask = Number.parseInt(this.permitsMask, 10);
 		const maxMaskValue = Math.max(...Object.values(RENT_PERMITS));
 
-		if (integerMask > maxMaskValue) {
+		if (!validator.isNumeric(integerMask) || integerMask < 1 || integerMask > maxMaskValue) {
 			this.addError('Wrong permitsMask value', 'permits_mask');
 		}
 
@@ -220,7 +221,7 @@ class CreateOfferForm extends BaseForm {
 
 		return {
 			countryCode,
-			city,
+			city: city.toLowerCase(),
 			street,
 			houseNumber,
 			floorNumber: Number(floorNumber),

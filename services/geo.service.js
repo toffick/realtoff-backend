@@ -3,20 +3,16 @@ const transliteration = require('../utils/transliteration.utils');
 
 class GeoService {
 
-	/**
-	 * @param {Object} opts
-	 * @param {String} opts.basePath
-	 * @param {AppConfig} opts.config
-	 */
-	constructor(opts) {
-		this.config = opts.config;
+
+	constructor({config}) {
+		this.config = config;
 		this.api = 'https://geocode-maps.yandex.ru/1.x/?';
 	}
 
 	/**
 	 *
 	 * @param {{city, street, house}} addressObject
-	 * @returns {Promise<{lat, long}>}
+	 * @returns {Promise<number[]>}
 	 */
 	async getCoordinatesByAddress(addressObject) {
 		const query = this._queryStringBuilder(addressObject);
@@ -34,6 +30,12 @@ class GeoService {
 		return [+lat, +long];
 	}
 
+	/**
+	 *
+	 * @param queryObject
+	 * @returns {string}
+	 * @private
+	 */
 	_queryStringBuilder(queryObject) {
 		const queryString = Object.values(queryObject).join('+');
 		const translitedString = transliteration(queryString);

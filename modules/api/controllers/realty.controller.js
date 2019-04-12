@@ -2,6 +2,7 @@ const _ = require('lodash');
 
 const bluebird = require('bluebird');
 const CreateOfferForm = require('../../../components/forms/create.offer.form');
+const SearchForm = require('../../../components/forms/search.offer.form');
 
 /**
  * A namespace.
@@ -16,6 +17,7 @@ class RealtyController {
 	 * @param {UserRepository} userRepository
 	 * @param {ErrorsHandler} errorsHandler
 	 * @param {OfferService} offerService
+	 * @param {SearchService} searchService
 	 * @param {RedisConnection} redisConnection
 	 */
 	constructor({
@@ -23,6 +25,7 @@ class RealtyController {
 		errorsHandler,
 		redisConnection,
 		offerService,
+		searchService,
 		config,
 	}) {
 		this.userRepository = userRepository;
@@ -31,6 +34,7 @@ class RealtyController {
 		this.errorsHandler = errorsHandler;
 
 		this.offerService = offerService;
+		this.searchService = searchService;
 
 		this.redisClient = bluebird.promisifyAll(redisConnection.getClient());
 	}
@@ -39,7 +43,6 @@ class RealtyController {
 		const {
 			address,
 			type,
-			country_code: countryCode,
 			city,
 			street,
 			house_number: houseNumber,
@@ -53,6 +56,7 @@ class RealtyController {
 			additional_telephone_number: additionalTelephoneNumber,
 			room_total: roomTotal,
 			square_total: squareTotal,
+			country_code: countryCode,
 		} = data.body;
 
 		const { token } = data.req;
@@ -97,6 +101,60 @@ class RealtyController {
 		}
 	}
 
+	async availableCountries(data, next) {
+		try {
+
+			const countries = await this.offerService.getOfferCountries();
+
+			return next(null, countries);
+
+		} catch (e) {
+
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
+	async availableCities(data, next) {
+		try {
+			const { country_code: countryCode } = data.req.query;
+
+			const countries = await this.offerService.getOfferCitiesByCountryCode(countryCode);
+
+			return next(null, countries);
+
+		} catch (e) {
+
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
+	async search(data, next) {
+		try {
+			const { query } = data.req;
+
+			const queryForm = new SearchForm(query);
+
+			const isValid = await queryForm.validate();
+
+			if (!isValid) {
+				return next(this.errorsHandler.createValidateErrorsFromArray(queryForm.getErrors()));
+			}
+
+			const result = await this.searchService.findBy(queryForm.getFormObject());
+
+			return next(null, result);
+
+		} catch (e) {
+
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
 
 }
 

@@ -28,4 +28,10 @@ module.exports = {
 		PETS: 8,
 		PARKING: 16,
 	},
+
+	OFFER_STATUS: {
+		OPEN: 'OPEN',
+		CLOSED: 'CLOSED',
+		BANNED: 'BANNED',
+	},
 };
