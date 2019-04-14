@@ -5,17 +5,17 @@ class OfferService {
 	/**
 	 *
 	 * @param config
-	 * @param {RealtyRepository} realtyRepository
+	 * @param {offerRepository} offerRepository
 	 * @param dbConnection
 	 * @param {AddressRepository} addressRepository
 	 * @param {DescriptionRepository} descriptionRepository
 	 */
 	constructor({
-		config, realtyRepository, dbConnection, addressRepository, descriptionRepository,
+		config, offerRepository, dbConnection, addressRepository, descriptionRepository,
 	}) {
 		this.dbConnection = dbConnection;
 		this.config = config;
-		this.realtyRepository = realtyRepository;
+		this.offerRepository = offerRepository;
 		this.addressRepository = addressRepository;
 		this.descriptionRepository = descriptionRepository;
 	}
@@ -34,7 +34,7 @@ class OfferService {
 
 			const { id: addressId } = await this.addressRepository.createAddress(offerObject, { transaction });
 			const { id: descriptionId } = await this.descriptionRepository.createDescription(offerObject, { transaction });
-			const offer = await this.realtyRepository.createOffer(offerObject, userId, descriptionId, addressId, { transaction });
+			const offer = await this.offerRepository.createOffer(offerObject, userId, descriptionId, addressId, { transaction });
 
 			return offer;
 		});
@@ -48,7 +48,7 @@ class OfferService {
 	 * @returns {Promise<*>}
 	 */
 	async getOfferCountries() {
-		const coutryCodes = await this.realtyRepository.getCountriesOfOpenOffers();
+		const coutryCodes = await this.offerRepository.getCountriesOfOpenOffers();
 		const countries = coutryCodes.map((countryCodeObj) => {
 			const { country_code: countryCode } = countryCodeObj;
 			const country = iso.whereAlpha2(countryCode);
@@ -67,7 +67,7 @@ class OfferService {
 	 * @returns {Promise<*>}
 	 */
 	async getOfferCitiesByCountryCode(countyCode) {
-		const cities = await this.realtyRepository.getOfferCitiesByCountryCode(countyCode);
+		const cities = await this.offerRepository.getOfferCitiesByCountryCode(countyCode);
 		return cities.map(({ city }) => city);
 	}
 

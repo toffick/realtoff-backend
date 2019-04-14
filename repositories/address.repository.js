@@ -16,8 +16,8 @@ class AddressRepository {
 		const coordinates = {
 			type: 'Point',
 			coordinates: [
-				offerObject.coordinates.latitudeBN.toString(),
-				offerObject.coordinates.longitudeBN.toString(),
+				offerObject.coordinates.longitude.toString(),
+				offerObject.coordinates.latitude.toString(),
 			],
 		};
 

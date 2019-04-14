@@ -47,7 +47,7 @@ class SearchForm extends BaseForm {
 		this.priceTo = Number(priceTo);
 		this.squareFrom = Number(squareFrom);
 		this.squareTo = Number(squareTo);
-		this.permitsMask = permitsMask;
+		this.permitsMask = Number(permitsMask);
 		this.type = type;
 	}
 
@@ -56,6 +56,8 @@ class SearchForm extends BaseForm {
 	 * @return {Promise.<*>}
 	 */
 	async validate() {
+
+		// TODO регулярки на валидацию
 		if (!iso.whereAlpha2(this.countryCode)) {
 			this.addError('Invalid countryCode. Enter a valid country code in iso-3166-1/alpha-2', 'countryCode');
 			return false;
@@ -77,26 +79,16 @@ class SearchForm extends BaseForm {
 			delete this.priceTo;
 		} else {
 			if (!validator.isNumeric(this.priceFrom)
-				|| this.priceFrom < 0) {
+				|| this.priceFrom <= 0) {
 				delete this.priceFrom;
 			}
 
 			if (!validator.isNumeric(this.priceTo)
-				|| this.priceFrom < 0
+				|| this.priceFrom <= 0
+				|| this.priceTo <= 1
 				|| (this.priceFrom && this.priceFrom > this.priceTo)) {
 				delete this.priceTo;
 			}
-		}
-
-		if (!validator.isNumeric(this.priceFrom)
-			|| this.priceFrom < 0) {
-			delete this.priceFrom;
-		}
-
-		if (!validator.isNumeric(this.priceTo)
-			|| this.priceFrom < 0
-			|| (this.priceFrom && this.priceFrom > this.priceTo)) {
-			delete this.priceTo;
 		}
 
 		if (!validator.isNumeric(this.squareFrom)
@@ -116,7 +108,7 @@ class SearchForm extends BaseForm {
 			delete this.type;
 		}
 
-		const integerMask = Number.parseInt(this.permitsMask, 10);
+		const integerMask = this.permitsMask;
 		const maxMaskValue = Math.max(...Object.values(RENT_PERMITS));
 
 		if (!validator.isNumeric(integerMask) || integerMask < 1 || integerMask > maxMaskValue) {

@@ -68,7 +68,7 @@ class CreateOfferForm extends BaseForm {
 	 * @return {Promise.<*>}
 	 */
 	async validate() {
-		//TODO перечекать все пункты валидации
+		// TODO перечекать все пункты валидации
 		if (!REALTY_TYPES[this.type.toUpperCase()]) {
 			this.addError('invalid realty type', 'type');
 		}
@@ -149,9 +149,9 @@ class CreateOfferForm extends BaseForm {
 		}
 
 		const integerMask = Number.parseInt(this.permitsMask, 10);
-		const maxMaskValue = Math.max(...Object.values(RENT_PERMITS));
+		const maxMaskValue = Object.values(RENT_PERMITS).reduce((a, i) => a + i, 0);
 
-		if (!validator.isNumeric(integerMask) || integerMask < 1 || integerMask > maxMaskValue) {
+		if (!validator.isNumeric(integerMask) || integerMask < 0 || integerMask > maxMaskValue) {
 			this.addError('Wrong permitsMask value', 'permits_mask');
 		}
 
@@ -165,7 +165,7 @@ class CreateOfferForm extends BaseForm {
 	}
 
 	async normalizeCoordinates() {
-		const { latitude, longitude } = this.coordinates;
+		let { latitude, longitude } = this.coordinates;
 
 		if (!latitude || !longitude) {
 			this.addError('Wrong coordinates value', 'coordinates');
@@ -179,14 +179,14 @@ class CreateOfferForm extends BaseForm {
 			this.addError('Invalid coordinates.longitude length', 'coordinates.longitude');
 		}
 
-		const latitudeBN = new BigNumber(latitude);
-		const longitudeBN = new BigNumber(longitude);
+		latitude = Number(latitude);
+		longitude = Number(longitude);
 
-		if (latitudeBN.lt(-90) || latitudeBN.gt(90)) {
+		if (!validator.isNumeric(latitude) || latitude < -90 || latitude > 90) {
 			this.addError('Invalid coordinates.latitudeBN value', 'coordinates.latitudeBN');
 		}
 
-		if (longitudeBN.lt(-180) || longitudeBN.gt(180)) {
+		if (!validator.isNumeric(longitude) || longitude < -180 || longitude > 180) {
 			this.addError('Invalid coordinates.latitudeBN value', 'coordinates.latitudeBN');
 		}
 
@@ -194,7 +194,7 @@ class CreateOfferForm extends BaseForm {
 			return false;
 		}
 
-		this.coordinates = { latitudeBN, longitudeBN };
+		this.coordinates = { latitude, longitude };
 
 		// TODO
 

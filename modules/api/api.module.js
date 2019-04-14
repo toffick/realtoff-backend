@@ -197,6 +197,10 @@ class ApiModule {
 		this._addHandler('get', '/available-cities', this.realtyController.availableCities.bind(this.realtyController));
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
 
+		if(this.config.environment !== 'production'){
+			this._addHandler('get', '/insert-test-data', this.realtyController._insertTestData.bind(this.realtyController));
+		}
+
 		this.app.get('*', (req, res) => res.status(405).json({
 			error: 'Method Not Allowed',
 			status: 405,

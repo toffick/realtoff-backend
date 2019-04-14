@@ -27,6 +27,7 @@ class RealtyController {
 		offerService,
 		searchService,
 		config,
+		testInfoGenerator,
 	}) {
 		this.userRepository = userRepository;
 
@@ -35,6 +36,7 @@ class RealtyController {
 
 		this.offerService = offerService;
 		this.searchService = searchService;
+		this.testInfoGenerator = testInfoGenerator;
 
 		this.redisClient = bluebird.promisifyAll(redisConnection.getClient());
 	}
@@ -150,6 +152,17 @@ class RealtyController {
 
 		} catch (e) {
 
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
+	async _insertTestData(data, next) {
+		try {
+			const res = await this.testInfoGenerator.insertTestData();
+			return next(null, res);
+		} catch (e) {
 			const responseErrors = await this.errorsHandler.createUnknownError(e);
 
 			return next(responseErrors);
