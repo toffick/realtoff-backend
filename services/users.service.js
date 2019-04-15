@@ -4,8 +4,8 @@ const CustomError = require('../components/errors/custom.error');
 const HashGeneratorHelper = require('../helpers/hash.generator.helper');
 
 const { USER_ACCOUNT } = require('../components/events/event.bus').EVENTS;
-const { TOKEN_TYPES, USER_PERMISSIONS } = require('../constants/constants');
-
+const { TOKEN_TYPES } = require('../constants/constants');
+const { EVENTS } = require('../components/events/event.bus');
 
 class UsersService {
 
@@ -43,8 +43,6 @@ class UsersService {
 		this.signOutTokenRepository = signOutTokenRepository;
 		this.temporaryRepository = temporaryRepository;
 
-		this.emailTransporter = emailTransporter;
-		this.emailTemplateRenderer = emailTemplateRenderer;
 
 		this.eventBus = eventBus;
 		this.dbConnection = dbConnection;
@@ -69,26 +67,9 @@ class UsersService {
 			return newUser;
 		});
 
-		const url = this.config.EMAIL_SETTINGS.CONFIRM_EMAIL_URL + confirmHash;
+		this.eventBus.publishEvent(EVENTS.USER.REGISTRATION, JSON.stringify({ confirmHash, email }));
 
-		const html = await this.emailTemplateRenderer.render('emails/email_confirmation', {
-			email,
-			path_to_public: this.config.EMAIL_SETTINGS.URL_PATH_TO_PUBLIC,
-			contact_email: this.config.EMAIL_SETTINGS.CONTACT_EMAIL,
-			url,
-		});
-
-		// TODO EMAIL
-		await this.emailTransporter.sendMail({
-			from: this.config.EMAIL_SETTINGS.TRANSPORTER.SENDER,
-			to: email,
-			subject: 'Email confirmation',
-			html,
-		});
-
-		const userResponse = await this.createTokens(user);
-
-		return userResponse;
+		return this.createTokens(user);
 	}
 
 	/**
@@ -100,13 +81,17 @@ class UsersService {
 	 * @returns {Promise<void>}
 	 */
 	async setPersonalInfo(userId, firstName, telephoneNumber, isPersonalLessor) {
-		const [result] = await this.userRepository.updateUserPersonalInfo(userId, firstName, telephoneNumber, isPersonalLessor);
+		const [count, result] = await this.userRepository.updateUserPersonalInfo(userId, firstName, telephoneNumber, isPersonalLessor);
 
-		if (!result) {
+		if (!count) {
 			throw new NotFoundError('Not Found', 'user_id');
 		}
 
-		return result === 1;
+		if (count === 1) {
+			return this._convertUserPublicField(result[0]);
+		}
+
+		return undefined;
 	}
 
 	/**

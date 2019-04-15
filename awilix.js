@@ -7,20 +7,8 @@ const {
 	Lifetime, InjectionMode, asClass, listModules, asValue,
 } = awilix;
 
-const envConfigs = [{ env: 'JIRA_PASSWORD', path: 'jira', field: 'password' }];
-
 const logger = getLogger();
 logger.level = CONFIG.logger.level || 'info';
-
-envConfigs.forEach(({ env, path, field }) => {
-	const value = process.env[env] || null;
-	if (!value) return;
-	let objectToUpdate = CONFIG;
-	path.split('.').forEach((propertyName) => {
-		objectToUpdate = objectToUpdate[propertyName];
-	});
-	objectToUpdate[field] = value;
-});
 
 // create awilix container
 const container = awilix.createContainer({
@@ -34,17 +22,6 @@ container.loadModules([
 	['connections/*.js', { register: asClass }],
 	['repositories/*.js', { register: asClass }],
 	['modules/*/*.js', { register: asClass }],
-], {
-	formatName: 'camelCase',
-	resolverOptions: {
-		lifetime: Lifetime.SINGLETON,
-		injectionMode: InjectionMode.PROXY,
-	},
-});
-
-// init workers with proxy mode for simple prototyping
-container.loadModules([
-	['workers/*.js', { register: asClass }],
 ], {
 	formatName: 'camelCase',
 	resolverOptions: {

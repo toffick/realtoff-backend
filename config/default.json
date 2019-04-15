@@ -35,9 +35,9 @@
     }
   },
   "PUBLIC_PATHS": {
-    "PROFILE": "/profile"
+    "FINISH_REGISTRATION": "/register/finish"
   },
   "YANDEX_API_KEY": "",
-  "CURRENCY_UPDATING_INTERVAL_MIN": 10,
+  "CURRENCY_UPDATING_INTERVAL_MIN": 30,
   "CURRENCY_CONVERTER_API_KEY": ""
 }

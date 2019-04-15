@@ -24,7 +24,7 @@ class OfferRepository {
 			additional_phone_number: offerObject.additionalTelephoneNumber,
 			price_per_month: offerObject.pricePerMonth,
 			currency: offerObject.currency,
-		}, { transaction });
+		}, { raw: true, transaction });
 
 		return offer;
 	}

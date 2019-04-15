@@ -128,7 +128,7 @@ class UserController {
 				setPersonalInfoForm.isPersonalLessor,
 			);
 
-			return next(null, { success: userResponse });
+			return next(null, userResponse);
 
 		} catch (e) {
 
@@ -307,9 +307,11 @@ class UserController {
 				return next('User is not found!');
 			}
 
+			const { FINISH_REGISTRATION: path } = this.config.PUBLIC_PATHS;
+
 			return next(null, {
 				redirect: {
-					path: this.config.PUBLIC_PATH.PROFILE,
+					path,
 				},
 			});
 		} catch (err) {

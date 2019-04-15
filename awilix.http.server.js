@@ -22,8 +22,6 @@ container.register({
 // load modules
 container.loadModules([
 	['services/*.js', { register: asClass }],
-	// ['services/exchanges/*.js', { register: asClass }],
-	['services/stats/*.js', { register: asClass }],
 	['components/errors/errors.handler.js', { register: asClass }],
 	['components/validators/*', { register: asClass }],
 	['components/events/*.js', { register: asClass }],
@@ -33,9 +31,9 @@ container.loadModules([
 	['connections/db.connection.js', { register: asClass }],
 	['connections/redis.connection.js', { register: asClass }],
 	['repositories/*.js', { register: asClass }],
-	['repositories/rpc/*.js', { register: asClass }],
 	['repositories/config/*.js', { register: asClass }],
 	['modules/api/*.js', { register: asClass }],
+	['modules/notifier/*.js', { register: asClass }],
 ], {
 	formatName: 'camelCase',
 	resolverOptions: {

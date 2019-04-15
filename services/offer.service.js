@@ -1,5 +1,7 @@
 const iso = require('iso-3166-1');
 
+const { EVENTS } = require('../components/events/event.bus');
+
 class OfferService {
 
 	/**
@@ -8,16 +10,23 @@ class OfferService {
 	 * @param {offerRepository} offerRepository
 	 * @param dbConnection
 	 * @param {AddressRepository} addressRepository
+	 * @param {EventBus} eventBus
 	 * @param {DescriptionRepository} descriptionRepository
 	 */
 	constructor({
-		config, offerRepository, dbConnection, addressRepository, descriptionRepository,
+		config,
+		offerRepository,
+		dbConnection,
+		eventBus,
+		addressRepository,
+		descriptionRepository,
 	}) {
 		this.dbConnection = dbConnection;
 		this.config = config;
 		this.offerRepository = offerRepository;
 		this.addressRepository = addressRepository;
 		this.descriptionRepository = descriptionRepository;
+		this.eventBus = eventBus;
 	}
 
 	/**
@@ -39,6 +48,7 @@ class OfferService {
 			return offer;
 		});
 
+		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify(offerObject));
 
 		return offer;
 	}

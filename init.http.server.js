@@ -50,6 +50,7 @@ const startMainProcess = () => {
 
 			return initModule('api.module', { router: apiRouter }, (err) => callback(err));
 		},
+		(callback) => initModule('notifier.module', {}, (err) => callback(err)),
 	], (err) => {
 		if (err) {
 			console.log('Start Main Process', err);
@@ -67,12 +68,3 @@ const startMainProcess = () => {
 process.on('uncaughtException', (err) => {
 	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!MAIN PROCESS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', err);
 });
-
-
-/*
-	1. добавить тестовую инфу. так, чтобы дохуя
-	2. протетстьи запрос к бд
-	3. написать генератор
-
-
-*/

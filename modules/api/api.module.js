@@ -102,8 +102,8 @@ class ApiModule {
 		const signUpLimiter = new RateLimiter(this.configureLimiterOptions(signUpLimiterOptions));
 		const signInLimiter = new RateLimiter(this.configureLimiterOptions(signInLimiterOptions));
 
-		this.app.use('/sign-up', signUpLimiter);
-		this.app.use('/sign-in', signInLimiter);
+		// this.app.use('/sign-up', signUpLimiter);
+		// this.app.use('/sign-in', signInLimiter);
 
 	}
 
@@ -249,7 +249,7 @@ class ApiModule {
 				}
 
 				if (result.redirect) {
-					return res.redirect(301, result.path);
+					return res.redirect(308, result.redirect.path);
 				}
 
 				return res.status(200).json(result);

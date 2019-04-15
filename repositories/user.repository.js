@@ -91,7 +91,8 @@ class UserRepository {
 				where: {
 					id: userId,
 				},
-			},
+				returning: true,
+			}
 		);
 
 		return user;

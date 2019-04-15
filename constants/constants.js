@@ -27,6 +27,7 @@ module.exports = {
 		CHILDREN: 4,
 		PETS: 8,
 		PARKING: 16,
+		WITHOUT_PREPAYMENT: 32,
 	},
 
 	OFFER_STATUS: {

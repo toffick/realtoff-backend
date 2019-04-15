@@ -3,7 +3,8 @@
   "cors": true,
   "EMAIL_SETTINGS": {
     "CONFIRM_EMAIL_URL": "localhost:6361/api/v1/confirm-email?hash=",
-    "URL_PATH_TO_PUBLIC": "localhost:6361",
-    "CONTACT_EMAIL": "localhost:6361"
+    "USER_OFFER_PAGE_URL": "localhost:8080/offer/",
+    "URL_PATH_TO_PUBLIC": "localhost:8080",
+    "CONTACT_EMAIL": "realtoffinfo@gmail.com"
   }
 }

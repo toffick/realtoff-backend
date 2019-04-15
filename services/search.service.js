@@ -4,19 +4,16 @@ class SearchService {
 	 *
 	 * @param config
 	 * @param {offerRepository} offerRepository
-	 * @param dbConnection
 	 * @param {CurrenciesRatesService} currenciesRatesService
 	 */
 	constructor({
-		config, offerRepository, dbConnection, currenciesRatesService
+		config, offerRepository, currenciesRatesService,
 	}) {
-		this.dbConnection = dbConnection;
 		this.config = config;
 
 		this.offerRepository = offerRepository;
 
 		this.currenciesRatesService = currenciesRatesService;
-
 	}
 
 	/**
@@ -27,7 +24,7 @@ class SearchService {
 	async findBy(queryObject) {
 		const currentCurrenciesRates = this.currenciesRatesService.currencyRates;
 
-		const result = await this.offerRepository.findByQueryObject(queryObject,currentCurrenciesRates);
+		const result = await this.offerRepository.findByQueryObject(queryObject, currentCurrenciesRates);
 
 		return result;
 	}
