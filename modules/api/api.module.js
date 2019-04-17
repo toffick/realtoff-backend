@@ -191,8 +191,10 @@ class ApiModule {
 		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
 		this._addHandler('post', '/auth', this.isAuthenticated.bind(this), this.userController.isAuth.bind(this.userController));
 		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
-		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
+		this._addHandler('post', '/save-user-filters', this.isAuthenticated.bind(this), this.userController.saveFilters.bind(this.userController));
 		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
+
+		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
 		this._addHandler('get', '/available-countries', this.realtyController.availableCountries.bind(this.realtyController));
 		this._addHandler('get', '/available-cities', this.realtyController.availableCities.bind(this.realtyController));
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));

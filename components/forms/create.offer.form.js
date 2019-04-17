@@ -24,6 +24,7 @@ class CreateOfferForm extends BaseForm {
 	 * @param type
 	 * @param roomTotal
 	 * @param squareTotal
+	 * @param countryCode
 	 */
 	constructor({
 		address,

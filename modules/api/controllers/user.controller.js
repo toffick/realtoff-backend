@@ -7,7 +7,7 @@ const PersonalInfoForm = require('../../../components/forms/personal.info.form')
 const SignInForm = require('../../../components/forms/sign.in.form');
 const SignOutForm = require('../../../components/forms/sign.out.form');
 const RefreshTokenFrom = require('../../../components/forms/refresh.jwt.token.form');
-const { TOKEN_TYPES } = require('../../../constants/constants');
+const SearchForm = require('../../../components/forms/search.offer.form');
 
 /**
  * A namespace.
@@ -304,7 +304,7 @@ class UserController {
 			const updateInfo = await this.userRepository.confirmUserEmail(hash);
 
 			if (!updateInfo) {
-				return next('User is not found!');
+				return next('Invalid link!');
 			}
 
 			const { FINISH_REGISTRATION: path } = this.config.PUBLIC_PATHS;
@@ -316,6 +316,61 @@ class UserController {
 			});
 		} catch (err) {
 			const responseErrors = await this.errorsHandler.createUnknownError(err);
+			return next(responseErrors);
+		}
+	}
+
+	/**
+	 *
+	 * @param data
+	 * @param next
+	 * @returns {Promise<*>}
+	 */
+	async saveFilters(data, next) {
+		try {
+
+			const {
+				country_code: countryCode,
+				city,
+				price_from: priceFrom,
+				price_to: priceTo,
+				currency,
+				square_from: squareFrom,
+				square_to: squareTo,
+				room_total: roomTotal,
+				permits_mask: permitsMask,
+				type,
+			} = data.body;
+
+			const { token } = data.req;
+			const { id } = token.payload;
+
+			const searchForm = new SearchForm({
+				countryCode,
+				city,
+				priceFrom,
+				priceTo,
+				currency,
+				squareFrom,
+				squareTo,
+				roomTotal,
+				permitsMask,
+				type,
+			});
+
+			const isValid = await searchForm.validate();
+
+			if (!isValid) {
+				return next(this.errorsHandler.createValidateErrorsFromArray(searchForm.getErrors()));
+			}
+
+			const refreshJwtTokensResponse = await this.usersService.saveFilter(searchForm.getFormObject(), id);
+
+			return next(null, refreshJwtTokensResponse);
+
+		} catch (err) {
+			const responseErrors = await this.errorsHandler.createUnknownError(err);
+
 			return next(responseErrors);
 		}
 	}

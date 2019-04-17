@@ -1,43 +1,38 @@
 const iso = require('iso-3166-1');
 
 const BaseForm = require('./base.form');
-const { REAL_TYPES, CURRENCY_TYPES, RENT_PERMITS } = require('../../constants/constants');
 const validator = require('../validator');
+const { REALTY_TYPES, CURRENCY_TYPES, RENT_PERMITS } = require('../../constants/constants');
 
-class SearchForm extends BaseForm {
+class UserFilter extends BaseForm {
+
 
 	/**
 	 *
-	 * @param currency
-	 * @param permitsMask
+	 * @param countryCode
+	 * @param city
 	 * @param priceFrom
 	 * @param priceTo
+	 * @param currency
 	 * @param squareFrom
 	 * @param squareTo
 	 * @param roomTotal
+	 * @param permitsMask
 	 * @param type
-	 * @param countryCode
-	 * @param city
-	 * @param bounds
-	 * @param nearPlaceCoordinates
+	 * @param userId
 	 */
 	constructor({
-		currency,
-		permitsMask,
+		countryCode,
+		city,
 		priceFrom,
 		priceTo,
+		currency,
 		squareFrom,
 		squareTo,
 		roomTotal,
+		permitsMask,
 		type,
-		countryCode,
-		city,
-		isPersonalLessor,
-		// TODO
-		bounds,
-		// TODO
-		nearPlaceCoordinates,
-
+		userId,
 	}) {
 		super();
 
@@ -50,12 +45,12 @@ class SearchForm extends BaseForm {
 		this.squareFrom = Number(squareFrom);
 		this.squareTo = Number(squareTo);
 		this.permitsMask = Number(permitsMask);
-		this.isPersonalLessor = isPersonalLessor;
 		this.type = type;
+		this.userId = userId;
 	}
 
 	/**
-	 *
+     *
 	 * @return {Promise.<*>}
 	 */
 	async validate() {
@@ -106,7 +101,7 @@ class SearchForm extends BaseForm {
 			delete this.squareTo;
 		}
 
-		if (!this.type || !REAL_TYPES[this.type.toUpperCase()]) {
+		if (!this.type || !REALTY_TYPES[this.type.toUpperCase()]) {
 			delete this.type;
 		}
 
@@ -122,42 +117,9 @@ class SearchForm extends BaseForm {
 		}
 
 		return this.isValid();
-	}
 
-	/**
-	 *
-	 * @returns {MetaSearch}
-	 */
-	getFormObject() {
-		const {
-			countryCode,
-			city,
-			roomTotal,
-			currency,
-			permitsMask,
-			type,
-			priceFrom,
-			priceTo,
-			squareFrom,
-			squareTo,
-			isPersonalLessor,
-		} = this;
-
-		return {
-			countryCode,
-			city: city.toLowerCase(),
-			roomTotal,
-			currency,
-			permitsMask,
-			type,
-			priceFrom,
-			priceTo,
-			squareFrom,
-			squareTo,
-			isPersonalLessor,
-		};
 	}
 
 }
 
-module.exports = SearchForm;
+module.exports = UserFilter;

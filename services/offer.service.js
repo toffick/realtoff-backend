@@ -48,7 +48,7 @@ class OfferService {
 			return offer;
 		});
 
-		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify(offerObject));
+		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify({ offerData: offerObject, offerId: offer.id }));
 
 		return offer;
 	}

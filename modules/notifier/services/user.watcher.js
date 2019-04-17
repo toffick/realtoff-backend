@@ -18,6 +18,7 @@ class UserWatcher {
 	 * @param {ErrorsHandler} errorsHandler
 	 * @param {EmailTransporter} emailTransporter
 	 * @param {EmailTemplateRenderer} emailTemplateRenderer
+	 * @param {UsersFilterService} usersFilterService
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
@@ -26,7 +27,8 @@ class UserWatcher {
 		emailTransporter,
 		config,
 		eventBus,
-					emailTemplateRenderer
+		usersFilterService,
+		emailTemplateRenderer,
 	}) {
 		this.userRepository = userRepository;
 
@@ -36,6 +38,7 @@ class UserWatcher {
 		this.emailTemplateRenderer = emailTemplateRenderer;
 
 		this.eventBus = eventBus;
+		this.usersFilterService = usersFilterService;
 
 	}
 
@@ -46,10 +49,14 @@ class UserWatcher {
 
 	async onFilterMatch(data) {
 
-		const offerData = JSON.parse(data);
+		const { offerData, offerId } = JSON.parse(data);
 
-		// TODO искать по параметрам
-		const { userEmails, offerId } = JSON.parse(data);
+		// в userFilterService делаем метод для поиска по всем userId данной хаты
+		// на выходе получаем список emails
+
+		//        								невъебенный метод
+		// TODO          								 v
+		const userEmails = this.usersFilterService.getSubscribersEmails(offerData);
 
 		const url = this.config.EMAIL_SETTINGS.USER_OFFER_PAGE_URL + offerId;
 

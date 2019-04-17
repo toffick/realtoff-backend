@@ -91,7 +91,7 @@ class OfferRepository {
 	 */
 	_searchQueryBuilder(queryObject, currentCurrenciesRates) {
 		let where = `select 
-			o.id, o.created_at, o."type", o.price_per_month, o.currency, 
+			o.id, o.created_at, o.price_per_month, o.currency, 
 			a.country_code, a.city, a.street, a.house_number, a.coordinates,
 			d.description
 				from offer as o
@@ -99,6 +99,8 @@ class OfferRepository {
 				on o.address_id = a.id
 				join description as d
 				on o.description_id = d.id
+				join public.user as u
+				on o.user_id = u.id
 				where 
 					o.status = 'OPEN' 
 					and country_code=:countryCode
@@ -132,6 +134,10 @@ class OfferRepository {
 
 		if (queryObject.permitsMask) {
 			_uppendAndCondition('permits_mask & :permitsMask = :permitsMask');
+		}
+
+		if (queryObject.isPersonalLessor) {
+			_uppendAndCondition('u.is_personal_lessor=true');
 		}
 
 		if (queryObject.priceFrom) {

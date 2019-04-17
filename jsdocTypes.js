@@ -10,4 +10,5 @@
  * @property {Number} squareTo
  * @property {String} currency
  * @property {String} type
+ * @property {Boolean} isPersonalLessor
  */

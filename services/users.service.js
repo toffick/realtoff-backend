@@ -18,8 +18,7 @@ class UsersService {
 	 * @param {UserTokenRepository} userTokenRepository
 	 * @param {SignOutTokenRepository} signOutTokenRepository
 	 * @param {TemporaryRepository} temporaryRepository
-	 * @param {EmailTransporter} emailTransporter
-	 * @param {EmailTemplateRenderer} emailTemplateRenderer
+	 * @param {UserFilterRepository} userFilterRepository
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
@@ -29,10 +28,9 @@ class UsersService {
 		userTokenRepository,
 		signOutTokenRepository,
 		temporaryRepository,
-		emailTransporter,
-		emailTemplateRenderer,
 		eventBus,
 		dbConnection,
+		userFilterRepository,
 	}) {
 		this.config = config;
 
@@ -41,6 +39,7 @@ class UsersService {
 		this.userRepository = userRepository;
 		this.userTokenRepository = userTokenRepository;
 		this.signOutTokenRepository = signOutTokenRepository;
+		this.userFilterRepository = userFilterRepository;
 		this.temporaryRepository = temporaryRepository;
 
 
@@ -67,7 +66,10 @@ class UsersService {
 			return newUser;
 		});
 
-		this.eventBus.publishEvent(EVENTS.USER.REGISTRATION, JSON.stringify({ confirmHash, email }));
+		this.eventBus.publishEvent(EVENTS.USER.REGISTRATION, JSON.stringify({
+			confirmHash,
+			email,
+		}));
 
 		return this.createTokens(user);
 	}
@@ -323,78 +325,6 @@ class UsersService {
 
 	/**
 	 *
-	 * @param {String} hash
-	 */
-	async confirmUserEmail(hash) {
-		return this.dbConnection.sequelize.transaction({
-			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
-		}, async (transaction) => {
-			const emailStats = await this.userEmailRepository.setUserEmailToCofirmedStatus(hash, { transaction });
-
-			let user = null;
-
-			if (emailStats[0]) {
-
-				if (!emailStats[1] || !emailStats[1][0] || !emailStats[1][0].dataValues) {
-					throw new Error('Wrong response signature!');
-				}
-
-				const {
-					id: emailId,
-					user_id: userId,
-					new_email: newEmail,
-					is_confirmed: isConfirmed,
-					is_changed: isChanged,
-					new_email_normalize: newEmailNormalize,
-				} = emailStats[1][0];
-
-				let userResult = null;
-
-				if (!newEmail) {
-					userResult = await this.userRepository.confirmUserEmailById(userId, { transaction });
-
-					if (userResult[0]) {
-						[, [user]] = userResult;
-					}
-				} else if (isConfirmed && isChanged) {
-					const updatedEmailresult = await this.userEmailRepository.setNewEmail(emailId, newEmail, newEmailNormalize, { transaction });
-					const [, updatedUserEmailStats] = updatedEmailresult;
-
-					if (updatedUserEmailStats) {
-						const [{
-							email: updatedEmail,
-							email_normalize: updatedEmailNormalize,
-							status: updatedStatus,
-						}] = updatedUserEmailStats;
-
-
-						if (updatedEmail) {
-							userResult = await this.userRepository.changeUserEmailById(userId, updatedEmail, updatedEmailNormalize, updatedStatus, { transaction });
-						}
-					}
-
-					if (userResult[1]) {
-						[, [user]] = userResult;
-					}
-				} else {
-					user = await this.userRepository.fetchActiveUserById(userId);
-				}
-			}
-
-			return user;
-
-		}).then((user) => {
-			if (!user) {
-				throw new Error('User does not exist!');
-			}
-
-			this.eventBus.publishEvent(USER_ACCOUNT.EMAIL_CHANGED, JSON.stringify({ userId: user.id }));
-			return this._convertUserPublicField(user);
-		});
-	}
-
-	/**
-	 *
 	 * @param {String|Number} userId
 	 * @param role
 	 */
@@ -423,6 +353,7 @@ class UsersService {
 	 */
 	async isUserEmailConfirmed(userId) {
 
+		// TODO проверка мыла
 		const user = await this.userRepository.fetchUserById(userId);
 
 		let result = false;
@@ -443,6 +374,22 @@ class UsersService {
 		}
 
 		return result;
+	}
+
+	/**
+	 *
+	 * @param filterObject
+	 * @param userId
+	 * @returns {Promise<*>}
+	 */
+	async saveFilter(filterObject, userId) {
+		const userFilter = await this.userFilterRepository.fetchUserFilter(filterObject, userId);
+
+		if (userFilter) {
+			throw new CustomError('Duplicate filter object', 'user_filter', 409);
+		}
+
+		return this.userFilterRepository.createUserFilter(filterObject, userId);
 	}
 
 }
