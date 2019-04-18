@@ -54,31 +54,12 @@ class OfferService {
 	}
 
 	/**
-	 * get all available countries that is been using in OPEN offers
-	 * @returns {Promise<*>}
+	 *
+	 * @param id
+	 * @returns {Promise<Promise<*>|Promise<*|void>>}
 	 */
-	async getOfferCountries() {
-		const coutryCodes = await this.offerRepository.getCountriesOfOpenOffers();
-		const countries = coutryCodes.map((countryCodeObj) => {
-			const { country_code: countryCode } = countryCodeObj;
-			const country = iso.whereAlpha2(countryCode);
-
-			delete country.numeric;
-			delete country.alpha3;
-			return { country: country.country, code: country.alpha2 };
-		});
-
-		return countries;
-	}
-
-	/**
-	 * get all available cities by countryCode that is been using in OPEN offers
-	 * @param countyCode
-	 * @returns {Promise<*>}
-	 */
-	async getOfferCitiesByCountryCode(countyCode) {
-		const cities = await this.offerRepository.getOfferCitiesByCountryCode(countyCode);
-		return cities.map(({ city }) => city);
+	async findOffer(id) {
+		return this.offerRepository.findOfferById(id);
 	}
 
 }

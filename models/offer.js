@@ -12,6 +12,12 @@ module.exports = (sequelize, DataTypes) => {
 		user_id: {
 			allowNull: false,
 			type: DataTypes.INTEGER,
+			references: {
+				model: 'user',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
 		},
 		address_id: {
 			type: DataTypes.INTEGER,
@@ -62,6 +68,33 @@ module.exports = (sequelize, DataTypes) => {
 		freezeTableName: true,
 		underscored: true,
 	});
+
+	Offer.associate = (models) => {
+
+		Offer.belongsTo(models.User, {
+			onDelete: 'CASCADE',
+			foreignKey: {
+				field: 'user_id',
+				allowNull: false,
+			},
+		});
+
+		Offer.belongsTo(models.Address, {
+			onDelete: 'CASCADE',
+			foreignKey: {
+				field: 'address_id',
+				allowNull: false,
+			},
+		});
+
+		Offer.belongsTo(models.Description, {
+			onDelete: 'CASCADE',
+			foreignKey: {
+				field: 'description_id',
+				allowNull: false,
+			},
+		});
+	};
 
 	return Offer;
 };

@@ -195,9 +195,8 @@ class ApiModule {
 		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
 
 		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
-		this._addHandler('get', '/available-countries', this.realtyController.availableCountries.bind(this.realtyController));
-		this._addHandler('get', '/available-cities', this.realtyController.availableCities.bind(this.realtyController));
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
+		this._addHandler('get', '/offers/:id', this.realtyController.getOffer.bind(this.realtyController));
 
 		if(this.config.environment !== 'production'){
 			this._addHandler('get', '/insert-test-data', this.realtyController._insertTestData.bind(this.realtyController));

@@ -1,4 +1,4 @@
-
+const NormalizeHelper = require('../helpers/normalize.helper');
 
 class UserFilterRepository {
 
@@ -8,7 +8,7 @@ class UserFilterRepository {
 
 	/**
 	 *
- 	 * @param filterObject
+	 * @param filterObject
 	 * @returns {Promise<*>}
 	 */
 	async createUserFilter(filterObject, userId) {
@@ -51,33 +51,20 @@ class UserFilterRepository {
 	 */
 	async fetchUserFilter(filterObject, userId) {
 
-		const {
-			countryCode,
-			city,
-			priceFrom,
-			priceTo,
-			currency,
-			squareFrom,
-			squareTo,
-			roomTotal,
-			permitsMask,
-			type,
-		} = filterObject;
+		const whereClause = NormalizeHelper.removeUndefinedValuesFields(filterObject);
+
+		const normalizedWhereFieldsObject = {};
+
+		Object.keys(whereClause).forEach(camelCaseKey => {
+			const underscoreKey = NormalizeHelper.camelToUnderscoreCase(camelCaseKey);
+			normalizedWhereFieldsObject[underscoreKey] = filterObject[camelCaseKey];
+		});
+
+		normalizedWhereFieldsObject.user_id = userId;
+
 
 		const userFilter = await this.models.UserFilter.findOne({
-			where: {
-				user_id: userId,
-				country_code: countryCode,
-				city,
-				price_from: priceFrom,
-				price_to: priceTo,
-				currency,
-				square_from: squareFrom,
-				square_to: squareTo,
-				room_total: roomTotal,
-				permits_mask: permitsMask,
-				type,
-			},
+			where: normalizedWhereFieldsObject,
 		});
 
 		return userFilter;

@@ -3,7 +3,7 @@ const usersData = require('../test_data/users');
 const usersPersonalData = require('../test_data/personal_info');
 const offersData = require('../test_data/offers');
 
-class OfferService {
+class TestInfoService {
 
 	/**
 	 *
@@ -47,4 +47,4 @@ class OfferService {
 
 }
 
-module.exports = OfferService;
+module.exports = TestInfoService;

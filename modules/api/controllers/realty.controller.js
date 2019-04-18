@@ -21,14 +21,14 @@ class RealtyController {
 	 * @param {RedisConnection} redisConnection
 	 */
 	constructor({
-		userRepository,
-		errorsHandler,
-		redisConnection,
-		offerService,
-		searchService,
-		config,
-		testInfoGenerator,
-	}) {
+					userRepository,
+					errorsHandler,
+					redisConnection,
+					offerService,
+					searchService,
+					config,
+					testInfoGenerator,
+				}) {
 		this.userRepository = userRepository;
 
 		this.config = config;
@@ -103,37 +103,6 @@ class RealtyController {
 		}
 	}
 
-	async availableCountries(data, next) {
-		try {
-
-			const countries = await this.offerService.getOfferCountries();
-
-			return next(null, countries);
-
-		} catch (e) {
-
-			const responseErrors = await this.errorsHandler.createUnknownError(e);
-
-			return next(responseErrors);
-		}
-	}
-
-	async availableCities(data, next) {
-		try {
-			const { country_code: countryCode } = data.req.query;
-
-			const countries = await this.offerService.getOfferCitiesByCountryCode(countryCode);
-
-			return next(null, countries);
-
-		} catch (e) {
-
-			const responseErrors = await this.errorsHandler.createUnknownError(e);
-
-			return next(responseErrors);
-		}
-	}
-
 	async search(data, next) {
 		try {
 			const { query } = data.req;
@@ -162,6 +131,33 @@ class RealtyController {
 		try {
 			const res = await this.testInfoGenerator.insertTestData();
 			return next(null, res);
+		} catch (e) {
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
+	async getOffer(data, next) {
+		try {
+			const { id } = data.params;
+
+			let result;
+			const offer = await this.offerService.findOffer(id);
+
+			if (offer) {
+				result = {
+					success: true,
+					result: offer
+				};
+			} else {
+				result = {
+					success: false,
+					error: 'Объявление не найдено или было закрыто'
+				};
+			}
+
+			return next(null, result);
 		} catch (e) {
 			const responseErrors = await this.errorsHandler.createUnknownError(e);
 

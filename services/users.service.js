@@ -386,7 +386,7 @@ class UsersService {
 		const userFilter = await this.userFilterRepository.fetchUserFilter(filterObject, userId);
 
 		if (userFilter) {
-			throw new CustomError('Duplicate filter object', 'user_filter', 409);
+			throw new CustomError('Фильтр с такими параметрами уже существует', 'user_filter', 409);
 		}
 
 		return this.userFilterRepository.createUserFilter(filterObject, userId);

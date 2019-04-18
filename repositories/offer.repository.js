@@ -24,7 +24,10 @@ class OfferRepository {
 			additional_phone_number: offerObject.additionalTelephoneNumber,
 			price_per_month: offerObject.pricePerMonth,
 			currency: offerObject.currency,
-		}, { raw: true, transaction });
+		}, {
+			raw: true,
+			transaction,
+		});
 
 		return offer;
 	}
@@ -177,6 +180,25 @@ class OfferRepository {
 
 	}
 
+	async findOfferById(id) {
+		return this.models.Offer.findOne({
+			where: {
+				id,
+			},
+			attributes: { exclude: ['user_id', 'address_id', 'description_id'] },
+			include: [{
+				model: this.models.User,
+				attributes: ['telephone_number', 'is_personal_lessor', 'second_name'],
+			}, {
+				model: this.models.Address,
+				attributes: { exclude: ['id'] },
+			},
+			{
+				model: this.models.Description,
+				attributes: { exclude: ['id'] },
+			}],
+		});
+	}
 
 }
 

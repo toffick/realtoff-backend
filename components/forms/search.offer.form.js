@@ -60,7 +60,7 @@ class SearchForm extends BaseForm {
 	 */
 	async validate() {
 
-		if (!iso.whereAlpha2(this.countryCode)) {
+ 		if (!iso.whereAlpha2(this.countryCode)) {
 			this.addError('Invalid countryCode. Enter a valid country code in iso-3166-1/alpha-2', 'countryCode');
 			return false;
 		}
@@ -91,6 +91,10 @@ class SearchForm extends BaseForm {
 				|| (this.priceFrom && this.priceFrom > this.priceTo)) {
 				delete this.priceTo;
 			}
+
+			if (!this.priceTo && !this.priceFrom) {
+				delete this.currency;
+			}
 		}
 
 		if (!validator.isNumeric(this.squareFrom)
@@ -115,6 +119,10 @@ class SearchForm extends BaseForm {
 
 		if (!validator.isNumeric(integerMask) || integerMask < 1 || integerMask > maxMaskValue) {
 			delete this.permitsMask;
+		}
+
+		if (!this.isPersonalLessor) {
+			delete this.isPersonalLessor;
 		}
 
 		if (this.hasErrors()) {

@@ -329,34 +329,11 @@ class UserController {
 	async saveFilters(data, next) {
 		try {
 
-			const {
-				country_code: countryCode,
-				city,
-				price_from: priceFrom,
-				price_to: priceTo,
-				currency,
-				square_from: squareFrom,
-				square_to: squareTo,
-				room_total: roomTotal,
-				permits_mask: permitsMask,
-				type,
-			} = data.body;
-
-			const { token } = data.req;
+			// SRY(
+			const { token, body } = data.req;
 			const { id } = token.payload;
 
-			const searchForm = new SearchForm({
-				countryCode,
-				city,
-				priceFrom,
-				priceTo,
-				currency,
-				squareFrom,
-				squareTo,
-				roomTotal,
-				permitsMask,
-				type,
-			});
+			const searchForm = new SearchForm(body);
 
 			const isValid = await searchForm.validate();
 
@@ -364,9 +341,9 @@ class UserController {
 				return next(this.errorsHandler.createValidateErrorsFromArray(searchForm.getErrors()));
 			}
 
-			const refreshJwtTokensResponse = await this.usersService.saveFilter(searchForm.getFormObject(), id);
+			const savedFilter = await this.usersService.saveFilter(searchForm.getFormObject(), id);
 
-			return next(null, refreshJwtTokensResponse);
+			return next(null, savedFilter);
 
 		} catch (err) {
 			const responseErrors = await this.errorsHandler.createUnknownError(err);
