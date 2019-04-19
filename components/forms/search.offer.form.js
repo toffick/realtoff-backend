@@ -115,7 +115,9 @@ class SearchForm extends BaseForm {
 		}
 
 		const integerMask = this.permitsMask;
-		const maxMaskValue = Math.max(...Object.values(RENT_PERMITS));
+
+		// TODO fix this
+		const maxMaskValue = Object.values(RENT_PERMITS).reduce((a, i) => a + i, 0);
 
 		if (!validator.isNumeric(integerMask) || integerMask < 1 || integerMask > maxMaskValue) {
 			delete this.permitsMask;

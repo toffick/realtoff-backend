@@ -43,20 +43,21 @@ class UserWatcher {
 	}
 
 	init() {
-		this.eventBus.on(EVENTS.USER.NEW_OFFER, (message) => this.onFilterMatch(message));
+		this.eventBus.on(EVENTS.USER.NEW_OFFER, (message) => this.onNewOffer(message));
 		this.eventBus.on(EVENTS.USER.REGISTRATION, (message) => this.onRegistration(message));
 	}
 
-	async onFilterMatch(data) {
+	async onNewOffer(data) {
 
 		const { offerData, offerId } = JSON.parse(data);
 
-		// в userFilterService делаем метод для поиска по всем userId данной хаты
-		// на выходе получаем список emails
+		const results = await this.usersFilterService.getSubscribersEmails(offerData);
 
-		//        								невъебенный метод
-		// TODO          								 v
-		const userEmails = this.usersFilterService.getSubscribersEmails(offerData);
+		if (!results.length) {
+			return;
+		}
+
+		const emails = results.map(({ email }) => email);
 
 		const url = this.config.EMAIL_SETTINGS.USER_OFFER_PAGE_URL + offerId;
 
@@ -68,8 +69,8 @@ class UserWatcher {
 
 		await this.emailTransporter.sendMail({
 			from: this.config.EMAIL_SETTINGS.TRANSPORTER.SENDER,
-			to: userEmails,
-			subject: 'Новое предложение, которое вы искали!',
+			to: emails,
+			subject: 'У нас появилось предложение, которое Вы искали!',
 			html,
 		});
 

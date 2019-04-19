@@ -14,13 +14,13 @@ class OfferService {
 	 * @param {DescriptionRepository} descriptionRepository
 	 */
 	constructor({
-		config,
-		offerRepository,
-		dbConnection,
-		eventBus,
-		addressRepository,
-		descriptionRepository,
-	}) {
+					config,
+					offerRepository,
+					dbConnection,
+					eventBus,
+					addressRepository,
+					descriptionRepository,
+				}) {
 		this.dbConnection = dbConnection;
 		this.config = config;
 		this.offerRepository = offerRepository;
@@ -31,7 +31,7 @@ class OfferService {
 
 	/**
 	 *
- 	 * @param offerObject
+	 * @param offerObject
 	 * @param userId
 	 * @returns {Promise<*>}
 	 */
@@ -48,7 +48,11 @@ class OfferService {
 			return offer;
 		});
 
-		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify({ offerData: offerObject, offerId: offer.id }));
+		offerObject.userId = userId;
+		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify({
+			offerData: offerObject,
+			offerId: offer.id
+		}));
 
 		return offer;
 	}

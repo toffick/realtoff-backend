@@ -1,11 +1,4 @@
 const _ = require('lodash');
-const NotFoundError = require('../components/errors/not.found.error');
-const CustomError = require('../components/errors/custom.error');
-const HashGeneratorHelper = require('../helpers/hash.generator.helper');
-
-const { USER_ACCOUNT } = require('../components/events/event.bus').EVENTS;
-const { TOKEN_TYPES } = require('../constants/constants');
-const { EVENTS } = require('../components/events/event.bus');
 
 class UsersFilterService {
 
@@ -14,23 +7,27 @@ class UsersFilterService {
 	 *
 	 * @param config
 	 * @param eventBus
-	 * @param userFilterRepository
+	 * @param {UserFilterRepository} userFilterRepository
+	 * @param {CurrenciesRatesService} currenciesRatesService
 	 */
 	constructor({
 		config,
 		eventBus,
 		userFilterRepository,
+		currenciesRatesService,
 	}) {
 		this.config = config;
 
 		this.userFilterRepository = userFilterRepository;
 
-		this.eventBus = eventBus;
+		this.currenciesRatesService = currenciesRatesService;
 	}
 
 
-	async getSubscribersEmails(offerData){
+	async getSubscribersEmails(offerData) {
+		const currentCurrenciesRates = this.currenciesRatesService.currencyRates;
 
+		return this.userFilterRepository.findSubscribersByOfferInfo(offerData, currentCurrenciesRates);
 	}
 
 }

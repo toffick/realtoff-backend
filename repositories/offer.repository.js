@@ -113,11 +113,6 @@ class OfferRepository {
 			where += `
 					and ${condition}`;
 		};
-		/*
- * @property {Number} priceFrom
- * @property {Number} priceTo
- * @property {String} currency
-		* */
 
 		if (queryObject.type) {
 			_uppendAndCondition('type=:type');
@@ -188,7 +183,7 @@ class OfferRepository {
 			attributes: { exclude: ['user_id', 'address_id', 'description_id'] },
 			include: [{
 				model: this.models.User,
-				attributes: ['telephone_number', 'is_personal_lessor', 'second_name'],
+				attributes: ['telephone_number', 'is_personal_lessor', 'first_name'],
 			}, {
 				model: this.models.Address,
 				attributes: { exclude: ['id'] },
