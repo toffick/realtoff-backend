@@ -1,8 +1,3 @@
-const _ = require('lodash');
-
-const bluebird = require('bluebird');
-const CreateOfferForm = require('../../../components/forms/create.offer.form');
-const SearchForm = require('../../../components/forms/search.offer.form');
 const { EVENTS } = require('../../../components/events/event.bus');
 /**
  * A namespace.

@@ -3,6 +3,8 @@ const logger = require('log4js').getLogger('api.module.js');
 
 logger.level = 'debug';
 
+const path = require('path');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const passport = require('passport');
@@ -29,12 +31,12 @@ class ApiModule {
 	 * @param {ErrorsHandler} errorsHandler
 	 */
 	constructor({
-		config,
-		realtyController,
-		userController,
-		tokenGeneratorService,
-		errorsHandler,
-	}) {
+					config,
+					realtyController,
+					userController,
+					tokenGeneratorService,
+					errorsHandler,
+				}) {
 		this.config = config;
 		this.userController = userController;
 		this.realtyController = realtyController;
@@ -42,6 +44,7 @@ class ApiModule {
 		this.tokenGeneratorService = tokenGeneratorService;
 
 		this.app = null;
+		this.multerMiddleware = null;
 	}
 
 	/**
@@ -76,6 +79,20 @@ class ApiModule {
 		};
 
 		passport.use(new JwtStrategy(jwtOptions, ((payload, done) => done(null, payload))));
+
+		const imagesPublicPath = path.join(__dirname, '../..', this.config.PUBLIC_PATHS.IMAGES);
+
+		this.multerMiddleware = multer({
+			storage: multer.diskStorage({
+				destination: (req, file, callback) => {
+					callback(null, imagesPublicPath);
+				},
+				filename: (req, file, callback) => {
+					const fileName = `${req.params.offerId}-${Date.now()}${path.extname(file.originalname)}`;
+					callback(null, fileName);
+				},
+			}),
+		});
 
 		this._setRateLimits();
 		this._initRoutes();
@@ -153,7 +170,7 @@ class ApiModule {
 	 * @param {Object} req
 	 * @param {Function} next
 	 */
-	isAuthenticated({ req }, next) {
+	isAuthenticated(req, res, next) {
 
 		return passport.authenticate('jwt', { session: false }, (err, payload) => {
 
@@ -198,7 +215,13 @@ class ApiModule {
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
 		this._addHandler('get', '/offers/:id', this.realtyController.getOffer.bind(this.realtyController));
 
-		if(this.config.environment !== 'production'){
+		this._addHandler('put', '/offers/upload-photos/:offerId', this.isAuthenticated.bind(this),
+			this.realtyController.isUserOfferOwner.bind(this.realtyController),
+			this.multerMiddleware.array('offer-image', 10).bind(this.multerMiddleware),
+			this.realtyController.savePhotos.bind(this.realtyController));
+
+
+		if (this.config.environment !== 'production') {
 			this._addHandler('get', '/insert-test-data', this.realtyController._insertTestData.bind(this.realtyController));
 		}
 
@@ -229,33 +252,32 @@ class ApiModule {
 
 		args.forEach((action, idx) => {
 
-			decoratedFunctions.push((req, res, next) => action({
+			decoratedFunctions.push((req, res, next) => action(
 				req,
-				query: req.query,
-				params: req.params,
-				body: req.body,
-			}, (err, result) => {
+				res,
+				(err, result) => {
 
-				if (err) {
+					if (err) {
 
-					if (err instanceof ResponseErrors) {
-						return res.status(err.getCode()).json(err.getResponseErrors());
+						if (err instanceof ResponseErrors) {
+							return res.status(err.getCode()).json(err.getResponseErrors());
+						}
+
+						return res.status(500).json({ errors: [err] });
 					}
 
-					return res.status(500).json({ errors: [err] });
-				}
+					if (idx < args.length - 1) {
+						return next();
+					}
 
-				if (idx < args.length - 1) {
-					return next();
-				}
+					if (result.redirect) {
+						return res.redirect(308, result.redirect.path);
+					}
 
-				if (result.redirect) {
-					return res.redirect(308, result.redirect.path);
-				}
+					return res.status(200).json(result);
 
-				return res.status(200).json(result);
-
-			}));
+				},
+			));
 
 		});
 

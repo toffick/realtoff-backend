@@ -12,6 +12,7 @@ class OfferService {
 	 * @param {AddressRepository} addressRepository
 	 * @param {EventBus} eventBus
 	 * @param {DescriptionRepository} descriptionRepository
+	 * @param {OfferPhotoRepository} offerPhotoRepository
 	 */
 	constructor({
 					config,
@@ -20,12 +21,14 @@ class OfferService {
 					eventBus,
 					addressRepository,
 					descriptionRepository,
+					offerPhotoRepository
 				}) {
 		this.dbConnection = dbConnection;
 		this.config = config;
 		this.offerRepository = offerRepository;
 		this.addressRepository = addressRepository;
 		this.descriptionRepository = descriptionRepository;
+		this.offerPhotoRepository = offerPhotoRepository;
 		this.eventBus = eventBus;
 	}
 
@@ -63,7 +66,29 @@ class OfferService {
 	 * @returns {Promise<Promise<*>|Promise<*|void>>}
 	 */
 	async findOffer(id) {
-		return this.offerRepository.findOfferById(id);
+
+		const offer = await this.offerRepository.findOfferById(id);
+
+		offer.OfferPhotos.forEach((item)=>{
+			item.dataValues.full_path = `${this.config.PUBLIC_PATHS.IMAGES}/${item.file_name}`;
+			return item;
+		})
+
+		return offer;
+
+	}
+
+	async uploadPhotos(photos, offerId) {
+		const photoNames = photos.map(({ filename }) => filename);
+		const createdPhotos = await this.offerPhotoRepository.bulkCreatePhotos(photoNames, offerId);
+
+		// TODO
+		const photosWithFullPaths = createdPhotos.map((item)=>{
+			item.dataValues.full_path = `${this.config.PUBLIC_PATHS.IMAGES}/${item.file_name}`;
+			return item;
+		})
+
+		return photosWithFullPaths;
 	}
 
 }

@@ -94,6 +94,10 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 		});
+
+		Offer.hasMany(models.OfferPhoto, {
+			onDelete: 'CASCADE',
+		});
 	};
 
 	return Offer;

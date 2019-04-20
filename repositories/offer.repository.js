@@ -81,6 +81,7 @@ class OfferRepository {
 			{
 				replacements: queryObject,
 				type: this.dbConnection.sequelize.QueryTypes.SELECT,
+				raw: true,
 			},
 		);
 	}
@@ -180,7 +181,7 @@ class OfferRepository {
 			where: {
 				id,
 			},
-			attributes: { exclude: ['user_id', 'address_id', 'description_id'] },
+			attributes: { exclude: ['address_id', 'description_id'] },
 			include: [{
 				model: this.models.User,
 				attributes: ['telephone_number', 'is_personal_lessor', 'first_name'],
@@ -191,6 +192,10 @@ class OfferRepository {
 			{
 				model: this.models.Description,
 				attributes: { exclude: ['id'] },
+			},
+			{
+				model: this.models.OfferPhoto,
+				attributes: ['file_name', 'id'],
 			}],
 		});
 	}

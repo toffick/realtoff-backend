@@ -3,6 +3,7 @@ const _ = require('lodash');
 const bluebird = require('bluebird');
 const CreateOfferForm = require('../../../components/forms/create.offer.form');
 const SearchForm = require('../../../components/forms/search.offer.form');
+const CustomError = require('../../../components/errors/custom.error');
 
 /**
  * A namespace.
@@ -41,7 +42,7 @@ class RealtyController {
 		this.redisClient = bluebird.promisifyAll(redisConnection.getClient());
 	}
 
-	async createOffer(data, next) {
+	async createOffer(req, res, next) {
 		const {
 			address,
 			type,
@@ -59,9 +60,9 @@ class RealtyController {
 			room_total: roomTotal,
 			square_total: squareTotal,
 			country_code: countryCode,
-		} = data.body;
+		} = req.body;
 
-		const { token } = data.req;
+		const { token } = req;
 		const { id } = token.payload;
 
 		try {
@@ -103,9 +104,9 @@ class RealtyController {
 		}
 	}
 
-	async search(data, next) {
+	async search(req, res, next) {
 		try {
-			const { query } = data.req;
+			const { query } = req;
 
 			const queryForm = new SearchForm(query);
 
@@ -127,10 +128,10 @@ class RealtyController {
 		}
 	}
 
-	async _insertTestData(data, next) {
+	async _insertTestData(req, res, next) {
 		try {
-			const res = await this.testInfoGenerator.insertTestData();
-			return next(null, res);
+			const ress = await this.testInfoGenerator.insertTestData();
+			return next(null, ress);
 		} catch (e) {
 			const responseErrors = await this.errorsHandler.createUnknownError(e);
 
@@ -138,9 +139,9 @@ class RealtyController {
 		}
 	}
 
-	async getOffer(data, next) {
+	async getOffer(req, res, next) {
 		try {
-			const { id } = data.params;
+			const { id } = req.params;
 
 			let result;
 			const offer = await this.offerService.findOffer(id);
@@ -158,6 +159,40 @@ class RealtyController {
 			}
 
 			return next(null, result);
+		} catch (e) {
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
+	async isUserOfferOwner(req, res, next) {
+		try {
+			const { offerId } = req.params;
+			const { token: { payload: { id: userId } } } = req;
+
+			const offer = await this.offerService.findOffer(offerId);
+
+			if (!offer || offer.user_id !== userId) {
+				throw new CustomError('Forbidden', '', 403);
+			}
+
+			return next(null, true);
+		} catch (e) {
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
+	async savePhotos(req, res, next) {
+		try {
+			const { files } = req;
+			const { offerId } = req.params;
+
+			const photos = await this.offerService.uploadPhotos(files, offerId);
+
+			return next(null, photos);
 		} catch (e) {
 			const responseErrors = await this.errorsHandler.createUnknownError(e);
 

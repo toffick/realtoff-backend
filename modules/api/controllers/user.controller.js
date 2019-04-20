@@ -53,9 +53,9 @@ class UserController {
 	 * @param {Function} next
 	 * @return {Promise.<*>}
 	 */
-	async signUp(data, next) {
+	async signUp(req, res, next) {
 
-		const { email, password, nickname } = data.body;
+		const { email, password, nickname } = req.body;
 
 		try {
 
@@ -95,14 +95,14 @@ class UserController {
 	 * @param next
 	 * @returns {Promise<void>}
 	 */
-	async setPersonalInfo(data, next) {
+	async setPersonalInfo(req, res, next) {
 		const {
 			first_name: firstName,
 			telephone_number: telephoneNumber,
 			is_personal_lessor: isPersonalLessor,
-		} = data.body;
+		} = req.body;
 
-		const { token } = data.req;
+		const { token } = req;
 		const { id } = token.payload;
 
 		try {
@@ -144,14 +144,14 @@ class UserController {
 	 * @param {Function} next
 	 * @return {Promise.<*>}
 	 */
-	async signIn(data, next) {
+	async signIn(req, res, next) {
 
 		try {
 
 			const {
 				email,
 				password,
-			} = data.body;
+			} = req.body;
 
 
 			const signInForm = new SignInForm({
@@ -193,9 +193,9 @@ class UserController {
 	 * @param next
 	 * @return {Promise.<*>}
 	 */
-	async signOut(data, next) {
+	async signOut(req, res, next) {
 
-		const { access_token: accessToken, refresh_token: refreshToken } = data.body;
+		const { access_token: accessToken, refresh_token: refreshToken } = req.body;
 
 		try {
 
@@ -232,11 +232,11 @@ class UserController {
 	 * @param {Object} data
 	 * @param {Function} next
 	 */
-	async isAuth(data, next) {
+	async isAuth(req, res, next) {
 
 		try {
 
-			const { token } = data.req;
+			const { token } = req;
 
 			const authForm = new AuthForm({ token });
 
@@ -265,10 +265,10 @@ class UserController {
 	 * @param {Object} data
 	 * @param {Function} next
 	 */
-	async refreshJwtTokens(data, next) {
+	async refreshJwtTokens(req, res, next) {
 		try {
 
-			const { refresh_token: refreshToken } = data.body;
+			const { refresh_token: refreshToken } = req.body;
 
 			const refreshTokenForm = new RefreshTokenFrom({
 				refreshToken,
@@ -297,9 +297,9 @@ class UserController {
 	 * @param {Object} data
 	 * @param {Function} next
 	 */
-	async confirmEmail(data, next) {
+	async confirmEmail(req, res, next) {
 		try {
-			const { hash } = data.req.query;
+			const { hash } = req.query;
 
 			const updateInfo = await this.userRepository.confirmUserEmail(hash);
 
@@ -326,11 +326,10 @@ class UserController {
 	 * @param next
 	 * @returns {Promise<*>}
 	 */
-	async saveFilters(data, next) {
+	async saveFilters(req, res, next) {
 		try {
 
-			// SRY(
-			const { token, body } = data.req;
+			const { token, body } = req;
 			const { id } = token.payload;
 
 			const searchForm = new SearchForm(body);

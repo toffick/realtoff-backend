@@ -102,8 +102,8 @@ class UserFilterRepository {
 						on u.id = uf.user_id
 					where 
 						uf.user_id <> :userId
-						and	country_code='BY'
-						and city='малорита'
+						and	country_code=:country
+						and city=:city
 						and type=:type
 						and (permits_mask & :permitsMask > 0 or permits_mask isnull)
 						and (room_total = :roomTotal or room_total isnull)

@@ -34,10 +34,14 @@
       }
     }
   },
-  "PUBLIC_PATHS": {
+  "PUBLIC_URI_PATHS": {
     "FINISH_REGISTRATION": "/register/finish"
   },
   "YANDEX_API_KEY": "",
   "CURRENCY_UPDATING_INTERVAL_MIN": 30,
-  "CURRENCY_CONVERTER_API_KEY": ""
+  "CURRENCY_CONVERTER_API_KEY": "",
+  "PUBLIC_PATHS": {
+    "BASE": "/public",
+    "IMAGES": "/public/images"
+  }
 }
