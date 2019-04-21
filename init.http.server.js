@@ -47,7 +47,7 @@ const startMainProcess = () => {
 			const apiRouter = express.Router();
 
 			app.use('/api/v1', apiRouter);
-			app.use(config.PUBLIC_PATHS.BASE, express.static(__dirname + config.PUBLIC_PATHS.BASE));
+			app.use(express.static(__dirname + config.PUBLIC_PATHS.BASE));
 
 			return initModule('api.module', { router: apiRouter }, (err) => callback(err));
 		},

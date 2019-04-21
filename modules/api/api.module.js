@@ -44,7 +44,7 @@ class ApiModule {
 		this.tokenGeneratorService = tokenGeneratorService;
 
 		this.app = null;
-		this.multerMiddleware = null;
+		this.multerMiddlewareOffer = null;
 	}
 
 	/**
@@ -80,9 +80,9 @@ class ApiModule {
 
 		passport.use(new JwtStrategy(jwtOptions, ((payload, done) => done(null, payload))));
 
-		const imagesPublicPath = path.join(__dirname, '../..', this.config.PUBLIC_PATHS.IMAGES);
+		const imagesPublicPath = path.join(__dirname, '../..', this.config.PUBLIC_PATHS.BASE, this.config.PUBLIC_PATHS.IMAGES);
 
-		this.multerMiddleware = multer({
+		this.multerMiddlewareOffer = multer({
 			storage: multer.diskStorage({
 				destination: (req, file, callback) => {
 					callback(null, imagesPublicPath);
@@ -208,16 +208,17 @@ class ApiModule {
 		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
 		this._addHandler('post', '/auth', this.isAuthenticated.bind(this), this.userController.isAuth.bind(this.userController));
 		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
-		this._addHandler('post', '/save-user-filters', this.isAuthenticated.bind(this), this.userController.saveFilters.bind(this.userController));
+		this._addHandler('post', '/user-filters', this.isAuthenticated.bind(this), this.userController.saveFilters.bind(this.userController));
+		this._addHandler('delete', '/user-filters/:filterId', this.isAuthenticated.bind(this), this.userController.removeFilter.bind(this.userController));
 		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
+		this._addHandler('get', '/profile', this.isAuthenticated.bind(this), this.userController.getProfile.bind(this.userController));
 
 		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
 		this._addHandler('get', '/offers/:id', this.realtyController.getOffer.bind(this.realtyController));
-
 		this._addHandler('put', '/offers/upload-photos/:offerId', this.isAuthenticated.bind(this),
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
-			this.multerMiddleware.array('offer-image', 10).bind(this.multerMiddleware),
+			this.multerMiddlewareOffer.array('offer-image', 10).bind(this.multerMiddlewareOffer),
 			this.realtyController.savePhotos.bind(this.realtyController));
 
 
@@ -284,45 +285,6 @@ class ApiModule {
 		return this.app[type].apply(this.app, [url, ...decoratedFunctions]);
 
 	}
-
-	traceRequest(req, res, next) {
-		const formForLog = Object.assign({}, req.body, req.query);
-
-		if (formForLog.password) {
-			formForLog.password = formForLog.password.replace(/./ig, '*');
-		}
-		if (formForLog.password_confirmation) {
-			formForLog.password_confirmation = formForLog.password_confirmation.replace(/./ig, '*');
-		}
-		if (formForLog.current_password) {
-			formForLog.current_password = formForLog.current_password.replace(/./ig, '*');
-		}
-		if (formForLog.new_password) {
-			formForLog.new_password = formForLog.new_password.replace(/./ig, '*');
-		}
-		logger.trace(`${req.method.toUpperCase()} Request ${req.originalUrl}`, JSON.stringify(formForLog));
-		next();
-	}
-
-	processActionMiddleware(action, req, res) {
-		let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-		if (ip) ip = ip.replace(/,.*/, '');
-		action({
-			form: req.form,
-			user: req.user,
-			req,
-			res,
-			ip,
-		}, (err, result) => {
-
-			if (err) {
-				return this._sendError(res, err, result);
-			}
-
-			return res.status(200).json(result);
-		});
-	}
-
 
 	_sendError(res, message, status) {
 		return res.status(status || 500).json({

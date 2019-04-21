@@ -39,6 +39,16 @@ module.exports = (sequelize, DataTypes) => {
 			onUpdate: 'cascade',
 			onDelete: 'cascade',
 		},
+		preview_photo_id: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+			references: {
+				model: 'offer_photo',
+				key: 'id',
+			},
+			onUpdate: 'cascade',
+			onDelete: 'cascade',
+		},
 		type: {
 			type: DataTypes.ENUM,
 			values: Object.values(REAL_TYPES),
@@ -95,8 +105,19 @@ module.exports = (sequelize, DataTypes) => {
 			},
 		});
 
+		// TODO sry
+		Offer.belongsTo(models.OfferPhoto, {
+			onDelete: 'CASCADE',
+			as: 'preview',
+			foreignKey: {
+				field: 'preview_photo_id',
+				allowNull: true,
+			},
+		});
+
 		Offer.hasMany(models.OfferPhoto, {
 			onDelete: 'CASCADE',
+			as: 'photos'
 		});
 	};
 

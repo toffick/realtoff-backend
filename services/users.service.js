@@ -56,7 +56,7 @@ class UsersService {
 	 */
 	async createUser(email, password, nickname) {
 
-		const confirmHash = await this.tokenGeneratorService.generateRandomToken();
+		const confirmHash = await HashGeneratorHelper.generateRandomHash(64);
 
 		const user = await this.dbConnection.sequelize.transaction({
 			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
@@ -389,7 +389,27 @@ class UsersService {
 			throw new CustomError('Фильтр с такими параметрами уже существует', 'user_filter', 409);
 		}
 
-		return this.userFilterRepository.createUserFilter(filterObject, userId);
+		return this.userFilterRepository.create(filterObject, userId);
+	}
+
+	/**
+	 *
+	 * @param userId
+	 * @param filterId
+	 * @returns {Promise<*>}
+	 */
+	async removeFilter(userId, filterId) {
+		return this.userFilterRepository.remove(userId, filterId);
+	}
+
+
+	/**
+	 *
+	 * @param id
+	 * @returns {Promise<void>}
+	 */
+	async getUserProfile(id) {
+		return this.userRepository.fetchUserProfile(id);
 	}
 
 }

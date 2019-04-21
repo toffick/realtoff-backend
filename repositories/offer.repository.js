@@ -97,7 +97,7 @@ class OfferRepository {
 		let where = `select 
 			o.id, o.created_at, o.price_per_month, o.currency, 
 			a.country_code, a.city, a.street, a.house_number, a.coordinates,
-			d.description
+			d.description, op.destination
 				from offer as o
 				join address as a
 				on o.address_id = a.id
@@ -105,6 +105,8 @@ class OfferRepository {
 				on o.description_id = d.id
 				join public.user as u
 				on o.user_id = u.id
+				left outer join offer_photo as op
+				on o.preview_photo_id = op.id
 				where 
 					o.status = 'OPEN' 
 					and country_code=:countryCode
@@ -188,15 +190,39 @@ class OfferRepository {
 			}, {
 				model: this.models.Address,
 				attributes: { exclude: ['id'] },
-			},
-			{
+			}, {
 				model: this.models.Description,
 				attributes: { exclude: ['id'] },
-			},
-			{
+			}, {
 				model: this.models.OfferPhoto,
-				attributes: ['file_name', 'id'],
+				attributes: ['file_name', 'id', 'destination'],
+				as: 'photos'
 			}],
+		});
+	}
+
+	async setFirstPreviewImage(id, previewImageId, { transaction } = { transaction: undefined }) {
+		return this.models.Offer.update({
+			preview_photo_id: previewImageId,
+		}, {
+			where: {
+				id,
+				preview_photo_id: null,
+			},
+			transaction
+		});
+	}
+
+	async updatePreviewImage(id, previewImageId, { transaction } = { transaction: undefined }) {
+		return this.models.Offer.update({
+			preview_photo_id: previewImageId,
+		}, {
+			id,
+		}, {
+			where: {
+				id,
+			},
+			transaction
 		});
 	}
 

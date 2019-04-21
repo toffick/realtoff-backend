@@ -13,7 +13,7 @@ class UserFilterRepository {
 	 * @param filterObject
 	 * @returns {Promise<*>}
 	 */
-	async createUserFilter(filterObject, userId) {
+	async create(filterObject, userId) {
 
 		const {
 			countryCode,
@@ -145,16 +145,17 @@ class UserFilterRepository {
 
 	/**
 	 *
-	 * @param {String} refreshToken
-	 * @return {Promise.<*>}
+	 * @param userId
+	 * @param filterId
+	 * @returns {Promise<*|PromiseLike<boolean | never>|Promise<boolean | never>>}
 	 */
-	async removeUserFilter(refreshToken) {
-		// TODO удалять фильтры
-		return this.models.UserToken.destroy({
+	async remove(userId, filterId) {
+		return this.models.UserFilter.destroy({
 			where: {
-				refresh_token: refreshToken,
+				user_id: userId,
+				id: filterId,
 			},
-		}).then(() => true);
+		});
 
 	}
 

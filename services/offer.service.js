@@ -7,7 +7,7 @@ class OfferService {
 	/**
 	 *
 	 * @param config
-	 * @param {offerRepository} offerRepository
+	 * @param {OfferRepository} offerRepository
 	 * @param dbConnection
 	 * @param {AddressRepository} addressRepository
 	 * @param {EventBus} eventBus
@@ -66,29 +66,26 @@ class OfferService {
 	 * @returns {Promise<Promise<*>|Promise<*|void>>}
 	 */
 	async findOffer(id) {
-
 		const offer = await this.offerRepository.findOfferById(id);
 
-		offer.OfferPhotos.forEach((item)=>{
-			item.dataValues.full_path = `${this.config.PUBLIC_PATHS.IMAGES}/${item.file_name}`;
-			return item;
-		})
-
 		return offer;
-
 	}
 
 	async uploadPhotos(photos, offerId) {
-		const photoNames = photos.map(({ filename }) => filename);
-		const createdPhotos = await this.offerPhotoRepository.bulkCreatePhotos(photoNames, offerId);
+		return this.dbConnection.sequelize.transaction({
+			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED
+		}, async (transaction) => {
+			const photoNames = photos
+				.map(({ filename }) => ({
+					destination: `${this.config.PUBLIC_PATHS.IMAGES}/${filename}`,
+					photoName: filename
+				}));
+			const createdPhotos = await this.offerPhotoRepository.bulkCreatePhotos(photoNames, offerId, transaction);
+			const [previewPhoto] = createdPhotos;
+			await this.offerRepository.setFirstPreviewImage(offerId, previewPhoto.id, transaction);
+			return createdPhotos;
+		});
 
-		// TODO
-		const photosWithFullPaths = createdPhotos.map((item)=>{
-			item.dataValues.full_path = `${this.config.PUBLIC_PATHS.IMAGES}/${item.file_name}`;
-			return item;
-		})
-
-		return photosWithFullPaths;
 	}
 
 }

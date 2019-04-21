@@ -4,6 +4,7 @@ module.exports = {
 		allowNull: true,
 	}),
 
+
 	down: (queryInterface, Sequelize) => queryInterface.removeColumn('user_filter', 'is_personal_lessor', {
 		type: Sequelize.BOOLEAN,
 		allowNull: true,

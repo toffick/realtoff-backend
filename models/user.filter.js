@@ -70,6 +70,10 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			type: DataTypes.DATE,
 		},
+		is_personal_lessor:{
+			allowNull: true,
+			type: DataTypes.BOOLEAN,
+		}
 	}, {
 		tableName: 'user_filter',
 		freezeTableName: true,

@@ -14,10 +14,9 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			type: DataTypes.STRING(256),
 		},
-		is_main: {
+		destination: {
 			allowNull: false,
-			type: DataTypes.BOOLEAN,
-			defaultValue: false,
+			type: DataTypes.STRING(256),
 		},
 	}, {
 		tableName: 'offer_photo',

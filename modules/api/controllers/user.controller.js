@@ -8,6 +8,7 @@ const SignInForm = require('../../../components/forms/sign.in.form');
 const SignOutForm = require('../../../components/forms/sign.out.form');
 const RefreshTokenFrom = require('../../../components/forms/refresh.jwt.token.form');
 const SearchForm = require('../../../components/forms/search.offer.form');
+const CustomError = require('../../../components/errors/custom.error');
 
 /**
  * A namespace.
@@ -27,14 +28,14 @@ class UserController {
 	 * @param {AuthActionService} authActionService
 	 */
 	constructor({
-		userTokenRepository,
-		userRepository,
-		usersService,
-		tokenGeneratorService,
-		errorsHandler,
-		redisConnection,
-		config,
-	}) {
+					userTokenRepository,
+					userRepository,
+					usersService,
+					tokenGeneratorService,
+					errorsHandler,
+					redisConnection,
+					config,
+				}) {
 		this.userTokenRepository = userTokenRepository;
 		this.userRepository = userRepository;
 
@@ -343,6 +344,50 @@ class UserController {
 			const savedFilter = await this.usersService.saveFilter(searchForm.getFormObject(), id);
 
 			return next(null, savedFilter);
+
+		} catch (err) {
+			const responseErrors = await this.errorsHandler.createUnknownError(err);
+
+			return next(responseErrors);
+		}
+	}
+
+	async removeFilter(req, res, next) {
+		try {
+
+			const { token, params } = req;
+			const { id } = token.payload;
+			const { filterId } = params;
+
+			const removedItems = await this.usersService.removeFilter(id, filterId);
+
+			if (removedItems < 1) {
+				throw new CustomError('Фильтра не существует', '', 404);
+			}
+
+			return next(null, true);
+
+		} catch (err) {
+			const responseErrors = await this.errorsHandler.createUnknownError(err);
+
+			return next(responseErrors);
+		}
+	}
+
+
+	async getProfile(req, res, next) {
+		try {
+
+			const { token } = req;
+			const { id } = token.payload;
+
+			const profile = await this.usersService.getUserProfile(id);
+
+			if (!profile) {
+				throw new CustomError('Пользователя не существует', '', 404);
+			}
+
+			return next(null, profile);
 
 		} catch (err) {
 			const responseErrors = await this.errorsHandler.createUnknownError(err);

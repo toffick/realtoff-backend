@@ -84,5 +84,22 @@ module.exports = (sequelize, DataTypes) => {
 	};
 
 
+	User.associate = (models) => {
+		User.hasMany(models.UserFilter, {
+			onDelete: 'CASCADE',
+			foreignKey: {
+				field: 'user_id',
+				allowNull: false,
+			},
+		});
+		User.hasMany(models.Offer, {
+			onDelete: 'CASCADE',
+			foreignKey: {
+				field: 'user_id',
+				allowNull: false,
+			},
+		});
+	};
+
 	return User;
 };

@@ -92,7 +92,7 @@ class UserRepository {
 					id: userId,
 				},
 				returning: true,
-			}
+			},
 		);
 
 		return user;
@@ -127,6 +127,21 @@ class UserRepository {
 				password,
 			},
 			transaction,
+		});
+	}
+
+	async fetchUserProfile(userId) {
+		return this.models.User.findOne({
+			where: { id: userId },
+			attributes: { exclude: ['password_hash', 'updated_at', 'email_confirm_hash'] },
+			include: [{
+				model: this.models.UserFilter,
+			},
+				{
+					model: this.models.Offer,
+					include: [this.models.Address]
+				}],
+
 		});
 	}
 

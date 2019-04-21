@@ -42,6 +42,6 @@
   "CURRENCY_CONVERTER_API_KEY": "",
   "PUBLIC_PATHS": {
     "BASE": "/public",
-    "IMAGES": "/public/images"
+    "IMAGES": "/images"
   }
 }
