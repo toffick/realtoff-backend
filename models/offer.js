@@ -1,4 +1,4 @@
-const { REAL_TYPES, CURRENCY_TYPES } = require('../constants/constants');
+const { REAL_TYPES, CURRENCY_TYPES, OFFER_STATUS } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 
@@ -26,8 +26,6 @@ module.exports = (sequelize, DataTypes) => {
 				model: 'address',
 				key: 'id',
 			},
-			onUpdate: 'cascade',
-			onDelete: 'cascade',
 		},
 		description_id: {
 			type: DataTypes.INTEGER,
@@ -36,8 +34,6 @@ module.exports = (sequelize, DataTypes) => {
 				model: 'description',
 				key: 'id',
 			},
-			onUpdate: 'cascade',
-			onDelete: 'cascade',
 		},
 		preview_photo_id: {
 			type: DataTypes.INTEGER,
@@ -46,8 +42,12 @@ module.exports = (sequelize, DataTypes) => {
 				model: 'offer_photo',
 				key: 'id',
 			},
-			onUpdate: 'cascade',
-			onDelete: 'cascade',
+		},
+		status: {
+			type: DataTypes.ENUM,
+			values: Object.values(OFFER_STATUS),
+			defaultValue: OFFER_STATUS.OPEN,
+			allowNull: false,
 		},
 		type: {
 			type: DataTypes.ENUM,

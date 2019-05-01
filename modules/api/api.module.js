@@ -13,6 +13,7 @@ const { ExtractJwt } = require('passport-jwt');
 const RateLimiter = require('express-rate-limit');
 const AccessToken = require('../../components/access.token');
 const ResponseErrors = require('../../components/errors/response.errors');
+const { USER_ROLES } = require('../../constants/constants');
 
 
 /**
@@ -27,19 +28,22 @@ class ApiModule {
 	 * @param config
 	 * @param {RealtyController} realtyController
 	 * @param {UserController} userController
+	 * @param {AdminController} adminController
 	 * @param {TokenGeneratorService} tokenGeneratorService
 	 * @param {ErrorsHandler} errorsHandler
 	 */
 	constructor({
-					config,
-					realtyController,
-					userController,
-					tokenGeneratorService,
-					errorsHandler,
-				}) {
+		config,
+		realtyController,
+		userController,
+		tokenGeneratorService,
+		errorsHandler,
+		adminController,
+	}) {
 		this.config = config;
 		this.userController = userController;
 		this.realtyController = realtyController;
+		this.adminController = adminController;
 		this.errorsHandler = errorsHandler;
 		this.tokenGeneratorService = tokenGeneratorService;
 
@@ -165,6 +169,16 @@ class ApiModule {
 
 	}
 
+	isAdmin(req, res, next) {
+		const { payload } = req.token;
+
+		if (payload.role !== USER_ROLES.ADMIN) {
+			return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', '', 403));
+		}
+
+		return next();
+	}
+
 	/**
 	 *
 	 * @param {Object} req
@@ -215,11 +229,29 @@ class ApiModule {
 
 		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
-		this._addHandler('get', '/offers/:id', this.realtyController.getOffer.bind(this.realtyController));
+		this._addHandler('get', '/offers/general/:offerId', this.realtyController.getOffer.bind(this.realtyController));
+		this._addHandler('put', '/offers/close/:offerId', this.isAuthenticated.bind(this),
+			this.realtyController.isUserOfferOwner.bind(this.realtyController),
+			this.realtyController.closeOffer.bind(this.realtyController));
+
 		this._addHandler('put', '/offers/upload-photos/:offerId', this.isAuthenticated.bind(this),
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
 			this.multerMiddlewareOffer.array('offer-image', 10).bind(this.multerMiddlewareOffer),
 			this.realtyController.savePhotos.bind(this.realtyController));
+
+
+		/* -------------Admin endpoints--------------*/
+		this._addHandler('put', '/offers/change-status/:offerId', this.isAuthenticated.bind(this),
+			this.isAdmin.bind(this),
+			this.adminController.changeOfferStatus.bind(this.adminController));
+
+		this._addHandler('get', '/offers/meta/:offerId', this.isAuthenticated.bind(this),
+			this.isAdmin.bind(this),
+			this.adminController.getOffer.bind(this.adminController));
+
+		this._addHandler('put', '/users/change-status/:userId', this.isAuthenticated.bind(this),
+			this.isAdmin.bind(this),
+			this.adminController.changeUserStatus.bind(this.adminController));
 
 
 		if (this.config.environment !== 'production') {

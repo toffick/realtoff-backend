@@ -1,21 +1,21 @@
 const BaseForm = require('./base.form');
-const { PASSWORD_MIN_LENGTH } = require('../../constants/constants');
+const { USER_STATUS } = require('../../constants/constants');
 const validator = require('../validator');
 
 class SignInForm extends BaseForm {
 
 
 	/**
-     *
-     * @param {String} appId
-     * @param {String} email
-     * @param {String} password
-     * @param {UserRepository} userRepository
-     */
+	 *
+	 * @param {String} appId
+	 * @param {String} email
+	 * @param {String} password
+	 * @param {UserRepository} userRepository
+	 */
 	constructor({
 		email,
 		password,
-		userRepository
+		userRepository,
 	}) {
 		super();
 
@@ -27,7 +27,7 @@ class SignInForm extends BaseForm {
 	}
 
 	/**
-     *
+	 *
 	 * @return {Promise.<*>}
 	 */
 	async validate() {
@@ -46,10 +46,6 @@ class SignInForm extends BaseForm {
 			this.addError('Password is required!', 'password');
 		}
 
-		if (!validator.isLength(this.password, { min: PASSWORD_MIN_LENGTH })) {
-			this.addError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters long`, 'password');
-		}
-
 		if (this.hasErrors()) {
 			return false;
 		}
@@ -57,14 +53,19 @@ class SignInForm extends BaseForm {
 		const user = await this.userRepository.fetchActiveUserByEmail(this.email);
 
 		if (!user) {
-			this.addError('Invalid email or password', '');
+			this.addError('Неверные логин или пароль', '');
+			return this.isValid();
+		}
+
+		if (user.status === USER_STATUS.BANNED) {
+			this.addError('Пользователь заблокирован. По всем вопросам обращайтесь realtoffinfo@gmail.com', 'banned');
 			return this.isValid();
 		}
 
 		const isValidPassword = await user.comparePassword(this.password);
 
 		if (!isValidPassword) {
-			this.addError('Invalid email or password.', '');
+			this.addError('Неверные логин или пароль', '');
 		}
 
 		return this.isValid();

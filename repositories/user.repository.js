@@ -1,5 +1,6 @@
-class UserRepository {
+const { OFFER_STATUS } = require('../constants/constants');
 
+class UserRepository {
 
 	constructor({ dbConnection, config }) {
 		this.dbConnection = dbConnection;
@@ -25,13 +26,12 @@ class UserRepository {
 	 * @param {String} confirmHash
 	 * @return {Promise.<*>}
 	 */
-	async createUser(email, password, nickname, confirmHash, { transaction } = { transaction: undefined }) {
+	async createUser(email, password, confirmHash, { transaction } = { transaction: undefined }) {
 
 		const user = await this.models.User.create({
 			email,
 			password,
 			password_hash: password,
-			second_name: nickname,
 			email_confirm_hash: confirmHash,
 		}, { transaction });
 
@@ -120,16 +120,6 @@ class UserRepository {
 		return update;
 	}
 
-	async findByNameAndPassword(email, password, { transaction } = { transaction: undefined }) {
-		return this.models.User.findOne({
-			where: {
-				email,
-				password,
-			},
-			transaction,
-		});
-	}
-
 	async fetchUserProfile(userId) {
 		return this.models.User.findOne({
 			where: { id: userId },
@@ -137,11 +127,23 @@ class UserRepository {
 			include: [{
 				model: this.models.UserFilter,
 			},
-				{
-					model: this.models.Offer,
-					include: [this.models.Address]
-				}],
+			{
+				required: false,
+				model: this.models.Offer,
+				include: [this.models.Address],
+				where: { status: [OFFER_STATUS.OPEN, OFFER_STATUS.CLOSED] },
+			}],
 
+		});
+	}
+
+	async changeStatus(status, userId) {
+		return this.models.User.update({
+			status,
+		}, {
+			where: {
+				id: userId,
+			},
 		});
 	}
 

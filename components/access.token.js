@@ -1,4 +1,5 @@
 const lodash = require('lodash');
+const { USER_ROLES } = require('../constants/constants');
 
 class AccessToken {
 
@@ -16,13 +17,17 @@ class AccessToken {
 			throw new Error('Wrong token: id');
 		}
 
+		if (!USER_ROLES[payload.role]) {
+			throw new Error('Wrong token: role');
+		}
+
 		if (!lodash.isSafeInteger(payload.id)) {
 			throw new Error('Invalid token: id');
 		}
 
 		this.raw = raw;
 		this.userId = payload.id;
-		this.appId = payload.desktopAppId;
+		this.role = payload.role;
 		this.payload = payload;
 
 
@@ -40,8 +45,8 @@ class AccessToken {
 		return this.userId;
 	}
 
-	getAppId() {
-		return this.appId;
+	getRole() {
+		return this.role;
 	}
 
 }

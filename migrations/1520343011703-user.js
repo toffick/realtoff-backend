@@ -28,10 +28,6 @@ module.exports = {
 			type: Sequelize.STRING,
 			allowNull: true,
 		},
-		second_name: {
-			type: Sequelize.STRING,
-			allowNull: true,
-		},
 		telephone_number: {
 			type: Sequelize.STRING,
 			allowNull: true,

@@ -102,7 +102,7 @@ class UserFilterRepository {
 						on u.id = uf.user_id
 					where 
 						uf.user_id <> :userId
-						and	country_code=:country
+						and	country_code=:countryCode
 						and city=:city
 						and type=:type
 						and (permits_mask & :permitsMask > 0 or permits_mask isnull)
@@ -154,6 +154,21 @@ class UserFilterRepository {
 			where: {
 				user_id: userId,
 				id: filterId,
+			},
+		});
+
+	}
+
+	/**
+	 *
+	 * @param userId
+	 * @param filterId
+	 * @returns {Promise<*|PromiseLike<boolean | never>|Promise<boolean | never>>}
+	 */
+	async removeAllByUserId(userId) {
+		return this.models.UserFilter.destroy({
+			where: {
+				user_id: userId,
 			},
 		});
 

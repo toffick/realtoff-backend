@@ -141,10 +141,14 @@ class RealtyController {
 
 	async getOffer(req, res, next) {
 		try {
-			const { id } = req.params;
+			const { offerId } = req.params;
+
+			if (Number.isNaN(offerId)) {
+				throw new CustomError('Невалидный идентификатор объевления', '', 400);
+			}
 
 			let result;
-			const offer = await this.offerService.findOffer(id);
+			const offer = await this.offerService.findOffer(offerId);
 
 			if (offer) {
 				result = {
@@ -200,6 +204,23 @@ class RealtyController {
 		}
 	}
 
+	async closeOffer(req, res, next) {
+		try {
+			const { offerId } = req.params;
+
+			const result = await this.offerService.close(offerId);
+
+			if (result) {
+				throw new CustomError('Такого объявления нет, либо оно уже закрыто', '', 404);
+			}
+
+			return next(null, result);
+		} catch (e) {
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
 }
 
 module.exports = RealtyController;

@@ -121,7 +121,7 @@ class CreateOfferForm extends BaseForm {
 			}
 
 			if (!validator.isNumeric(this.floorTotal) || this.floorNumber < 1 || this.floorNumber - this.floorTotal > 0) {
-				this.addError('invalid floorNumber', 'floor_total');
+				this.addError('invalid floorTotal', 'floor_total');
 			}
 		}
 
@@ -137,15 +137,11 @@ class CreateOfferForm extends BaseForm {
 			this.addError('invalid pricePerMonth', 'price_per_month');
 		}
 
-		if (this.description < 140 || this.description > 2000) {
-			this.addError('invalid description length. From 90 to 2000', 'description');
-		}
-
 		if (!CURRENCY_TYPES[this.currency.toUpperCase()]) {
 			this.addError('invalid currency type', 'currency');
 		}
 
-		if (!validator.isMobilePhone(this.additionalTelephoneNumber)) {
+		if (!validator.isEmpty(this.additionalTelephoneNumber) && !validator.isMobilePhone(this.additionalTelephoneNumber)) {
 			this.addError('invalid additionalTelephoneNumber', 'additional_telephone_number');
 		}
 

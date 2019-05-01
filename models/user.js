@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 
+const { USER_ROLES, USER_STATUS } = require('../constants/constants');
+
 module.exports = (sequelize, DataTypes) => {
 
 	const User = sequelize.define('User', {
@@ -26,10 +28,6 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			allowNull: true,
 		},
-		second_name: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
 		telephone_number: {
 			type: DataTypes.STRING,
 			allowNull: true,
@@ -42,6 +40,16 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			allowNull: true,
 			defaultValue: false,
+		},
+		role: {
+			type: DataTypes.ENUM,
+			values: Object.values(USER_ROLES),
+			defaultValue: USER_ROLES.USER,
+		},
+		status: {
+			type: DataTypes.ENUM,
+			values: Object.values(USER_STATUS),
+			defaultValue: USER_STATUS.ACTIVE,
 		},
 		created_at: {
 			allowNull: false,
@@ -73,14 +81,13 @@ module.exports = (sequelize, DataTypes) => {
 	});
 
 	User.prototype.comparePassword = function (candidatePassword) {
-		return new Promise((resolve, reject) =>
-			bcrypt.compare(candidatePassword, this.password_hash, (err, isMatch) => {
-				if (err) {
-					return reject(err);
-				}
+		return new Promise((resolve, reject) => bcrypt.compare(candidatePassword, this.password_hash, (err, isMatch) => {
+			if (err) {
+				return reject(err);
+			}
 
-				return resolve(isMatch);
-			}));
+			return resolve(isMatch);
+		}));
 	};
 
 

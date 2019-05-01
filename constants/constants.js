@@ -35,4 +35,14 @@ module.exports = {
 		CLOSED: 'CLOSED',
 		BANNED: 'BANNED',
 	},
+
+	USER_ROLES: {
+		USER: 'USER',
+		ADMIN: 'ADMIN',
+	},
+
+	USER_STATUS: {
+		ACTIVE: 'ACTIVE',
+		BANNED: 'BANNED',
+	},
 };

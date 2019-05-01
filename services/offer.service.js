@@ -15,14 +15,14 @@ class OfferService {
 	 * @param {OfferPhotoRepository} offerPhotoRepository
 	 */
 	constructor({
-					config,
-					offerRepository,
-					dbConnection,
-					eventBus,
-					addressRepository,
-					descriptionRepository,
-					offerPhotoRepository
-				}) {
+		config,
+		offerRepository,
+		dbConnection,
+		eventBus,
+		addressRepository,
+		descriptionRepository,
+		offerPhotoRepository,
+	}) {
 		this.dbConnection = dbConnection;
 		this.config = config;
 		this.offerRepository = offerRepository;
@@ -54,7 +54,7 @@ class OfferService {
 		offerObject.userId = userId;
 		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify({
 			offerData: offerObject,
-			offerId: offer.id
+			offerId: offer.id,
 		}));
 
 		return offer;
@@ -63,22 +63,29 @@ class OfferService {
 	/**
 	 *
 	 * @param id
+	 * @param isAdmin
 	 * @returns {Promise<Promise<*>|Promise<*|void>>}
 	 */
-	async findOffer(id) {
-		const offer = await this.offerRepository.findOfferById(id);
+	async findOffer(id, isAdmin = false) {
+		const offer = await this.offerRepository.findOfferById(id, isAdmin);
 
 		return offer;
 	}
 
+	/**
+	 *
+	 * @param photos
+	 * @param offerId
+	 * @returns {Promise<*>}
+	 */
 	async uploadPhotos(photos, offerId) {
 		return this.dbConnection.sequelize.transaction({
-			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED
+			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
 		}, async (transaction) => {
 			const photoNames = photos
 				.map(({ filename }) => ({
 					destination: `${this.config.PUBLIC_PATHS.IMAGES}/${filename}`,
-					photoName: filename
+					photoName: filename,
 				}));
 			const createdPhotos = await this.offerPhotoRepository.bulkCreatePhotos(photoNames, offerId, transaction);
 			const [previewPhoto] = createdPhotos;
@@ -86,6 +93,16 @@ class OfferService {
 			return createdPhotos;
 		});
 
+	}
+
+	async close(offerId) {
+		const result = await this.offerRepository.close(offerId);
+		return result > 1;
+	}
+
+	async changeStatus(status, offerId) {
+		const result = await this.offerRepository.changeStatus(status, offerId);
+		return result.length > 0;
 	}
 
 }

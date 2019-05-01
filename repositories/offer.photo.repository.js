@@ -11,7 +11,7 @@ class OfferPhotoRepository {
 	 * @param offerId
 	 * @returns {Promise<Array<Model>>}
 	 */
-	bulkCreatePhotos(photos, offerId, { transaction } = { transaction: undefined }) {
+	async bulkCreatePhotos(photos, offerId, { transaction } = { transaction: undefined }) {
 		const objects = photos.map(({photoName, destination}) => ({
 			file_name: photoName,
 			offer_id: offerId,

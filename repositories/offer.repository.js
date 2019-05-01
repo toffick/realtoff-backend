@@ -1,3 +1,5 @@
+const { OFFER_STATUS, USER_STATUS } = require('../constants/constants');
+
 class OfferRepository {
 
 	constructor({ dbConnection, config }) {
@@ -30,47 +32,6 @@ class OfferRepository {
 		});
 
 		return offer;
-	}
-
-	/**
-	 *
-	 * @returns {Promise<*>}
-	 */
-	async getCountriesOfOpenOffers() {
-		return this.dbConnection.sequelize.query(
-			`select DISTINCT  country_code 
-				from offer as o 
-				join address as a
-				on a.id = o.address_id
-				where o.status = 'OPEN'
-			`,
-			{
-				type: this.dbConnection.sequelize.QueryTypes.SELECT,
-			},
-		);
-
-	}
-
-	/**
-	 *
-	 * @returns {Promise<*>}
-	 */
-	async getOfferCitiesByCountryCode(countryCode) {
-		return this.dbConnection.sequelize.query(
-			`select DISTINCT city 
-				from offer as o 
-				join address as a
-				on a.id = o.address_id
-				where o.status = 'OPEN' and a.country_code = :countryCode
-			`,
-			{
-				replacements: {
-					countryCode,
-				},
-				type: this.dbConnection.sequelize.QueryTypes.SELECT,
-			},
-		);
-
 	}
 
 	async findByQueryObject(queryObject, currentCurrenciesRates) {
@@ -178,15 +139,26 @@ class OfferRepository {
 
 	}
 
-	async findOfferById(id) {
+	async findOfferById(id, isAdmin) {
+		const whereClause = {
+			id,
+		};
+		const userJoinWhereClause = {};
+
+		if (!isAdmin) {
+			// search result for simple users are from active users and only open/closed offers
+			whereClause.status = [OFFER_STATUS.OPEN, OFFER_STATUS.CLOSED];
+			userJoinWhereClause.status = USER_STATUS.ACTIVE;
+		}
+
+
 		return this.models.Offer.findOne({
-			where: {
-				id,
-			},
+			where: whereClause,
 			attributes: { exclude: ['address_id', 'description_id'] },
 			include: [{
 				model: this.models.User,
-				attributes: ['telephone_number', 'is_personal_lessor', 'first_name'],
+				attributes: ['telephone_number', 'is_personal_lessor', 'first_name', 'id'],
+				where: userJoinWhereClause,
 			}, {
 				model: this.models.Address,
 				attributes: { exclude: ['id'] },
@@ -196,7 +168,7 @@ class OfferRepository {
 			}, {
 				model: this.models.OfferPhoto,
 				attributes: ['file_name', 'id', 'destination'],
-				as: 'photos'
+				as: 'photos',
 			}],
 		});
 	}
@@ -209,7 +181,7 @@ class OfferRepository {
 				id,
 				preview_photo_id: null,
 			},
-			transaction
+			transaction,
 		});
 	}
 
@@ -222,7 +194,29 @@ class OfferRepository {
 			where: {
 				id,
 			},
-			transaction
+			transaction,
+		});
+	}
+
+	async close(offerId) {
+		return this.models.Offer.update({
+			status: OFFER_STATUS.CLOSED,
+		}, {
+			where: {
+				id: offerId,
+				status: OFFER_STATUS.OPEN,
+			},
+		});
+	}
+
+
+	async changeStatus(status, offerId) {
+		return this.models.Offer.update({
+			status,
+		}, {
+			where: {
+				id: offerId,
+			},
 		});
 	}
 

@@ -56,14 +56,13 @@ class UserController {
 	 */
 	async signUp(req, res, next) {
 
-		const { email, password, nickname } = req.body;
+		const { email, password } = req.body;
 
 		try {
 
 			const signUpForm = new SignUpForm({
 				email,
 				password,
-				nickname,
 				userRepository: this.userRepository,
 			});
 
@@ -76,7 +75,6 @@ class UserController {
 			const userResponse = await this.usersService.createUser(
 				signUpForm.email,
 				signUpForm.password,
-				signUpForm.nickname,
 			);
 
 			return next(null, userResponse);
@@ -239,7 +237,10 @@ class UserController {
 
 			const { token } = req;
 
-			const authForm = new AuthForm({ token });
+			const authForm = new AuthForm({
+				token,
+				userRepository: this.userRepository,
+			});
 
 			const isValid = await authForm.validate();
 
@@ -308,7 +309,7 @@ class UserController {
 				return next('Invalid link!');
 			}
 
-			const { FINISH_REGISTRATION: path } = this.config.PUBLIC_PATHS;
+			const { FINISH_REGISTRATION: path } = this.config.PUBLIC_URI_PATHS;
 
 			return next(null, {
 				redirect: {

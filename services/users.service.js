@@ -3,9 +3,9 @@ const NotFoundError = require('../components/errors/not.found.error');
 const CustomError = require('../components/errors/custom.error');
 const HashGeneratorHelper = require('../helpers/hash.generator.helper');
 
-const { USER_ACCOUNT } = require('../components/events/event.bus').EVENTS;
 const { TOKEN_TYPES } = require('../constants/constants');
 const { EVENTS } = require('../components/events/event.bus');
+const { USER_STATUS } = require('../constants/constants');
 
 class UsersService {
 
@@ -54,14 +54,14 @@ class UsersService {
 	 * @param {String} password
 	 * @return {Promise.<{user: *, access_token: String, refresh_token: String}>}
 	 */
-	async createUser(email, password, nickname) {
+	async createUser(email, password) {
 
 		const confirmHash = await HashGeneratorHelper.generateRandomHash(64);
 
 		const user = await this.dbConnection.sequelize.transaction({
 			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
 		}, async (transaction) => {
-			const newUser = await this.userRepository.createUser(email, password, nickname, confirmHash, { transaction });
+			const newUser = await this.userRepository.createUser(email, password, confirmHash, { transaction });
 
 			return newUser;
 		});
@@ -304,7 +304,7 @@ class UsersService {
 		const {
 			accessTokenData,
 			refreshTokenData,
-		} = this._configureTokensData(responseUser.id, responseUser.role_id);
+		} = this._configureTokensData(responseUser.id, responseUser.role);
 
 		const accessToken = await this.tokenGeneratorService.generateJwtToken({
 			data: accessTokenData,
@@ -332,13 +332,13 @@ class UsersService {
 		const refreshTokenData = {
 			id: userId,
 			type: TOKEN_TYPES.REFRESH,
-			role_id: role,
+			role,
 		};
 
 		const accessTokenData = {
 			id: userId,
 			type: TOKEN_TYPES.ACCESS,
-			role_id: role,
+			role,
 		};
 
 		return {
@@ -410,6 +410,22 @@ class UsersService {
 	 */
 	async getUserProfile(id) {
 		return this.userRepository.fetchUserProfile(id);
+	}
+
+	/**
+	 *
+	 * @param status
+	 * @param userId
+	 * @returns {Promise<boolean>}
+	 */
+	async changeStatus(status, userId) {
+		const result = await this.userRepository.changeStatus(status, userId);
+
+		if (result.length > 0 && status === USER_STATUS.BANNED) {
+			await this.userFilterRepository.removeAllByUserId(userId);
+		}
+
+		return result.length > 0;
 	}
 
 }

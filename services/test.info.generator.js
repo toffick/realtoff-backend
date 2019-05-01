@@ -1,4 +1,3 @@
-const iso = require('iso-3166-1');
 const usersData = require('../test_data/users');
 const usersPersonalData = require('../test_data/personal_info');
 const offersData = require('../test_data/offers');
@@ -25,7 +24,7 @@ class TestInfoService {
 	async insertTestData() {
 
 		try {
-			const ids = (await Promise.all(usersData.map((item) => this.usersService.createUser(item.email, item.password, item.nickname))))
+			const ids = (await Promise.all(usersData.map((item) => this.usersService.createUser(item.email, item.password))))
 				.map((res) => res.user.id);
 
 			ids.forEach(async (id, index) => {

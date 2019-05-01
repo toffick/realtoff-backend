@@ -10,17 +10,15 @@ class SignUpForm extends BaseForm {
 	 *
 	 * @param {String} email
 	 * @param {String} password
-	 * @param {String} nickname
 	 * @param {UserRepository} userRepository
 	 */
 	constructor({
-		email, password, nickname, userRepository,
+		email, password, userRepository,
 	}) {
 		super();
 
 		this.email = validator.trim(email);
 		this.password = validator.trim(password);
-		this.nickname = validator.trim(nickname);
 
 		this.userRepository = userRepository;
 	}
@@ -45,14 +43,6 @@ class SignUpForm extends BaseForm {
 
 		if (!validator.isLength(this.password, { min: PASSWORD_MIN_LENGTH })) {
 			this.addError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters long`, 'password');
-		}
-
-		if (validator.isEmpty(this.nickname)) {
-			this.addError('Nickname is required', 'nickname');
-		}
-
-		if (this.nickname.length > 255) {
-			this.addError('Invalid Nickname length', 'nickname');
 		}
 
 		if (this.hasErrors()) {

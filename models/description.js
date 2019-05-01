@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 		description: {
 			allowNull: false,
 			type: DataTypes.STRING(2000),
+			defaultValue: '',
 		},
 		permits_mask: {
 			allowNull: false,
