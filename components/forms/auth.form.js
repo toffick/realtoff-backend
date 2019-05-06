@@ -31,9 +31,8 @@ class AuthForm extends BaseForm {
 		const { id } = this.token.payload;
 		const user = await this.userRepository.fetchUserById(id);
 
-		if (user.status === USER_STATUS.BANNED) {
+		if (user && user.status === USER_STATUS.BANNED) {
 			this.addError('Пользователь заблокирован. По всем вопросам обращайтесь realtoffinfo@gmail.com', 'banned');
-			return this.isValid();
 		}
 
 		return this.isValid();

@@ -1,0 +1,28 @@
+{
+  "name": "realtoff-backend",
+  "description": "",
+  "env": {
+    "PGSQL_PASSWORD": {
+      "required": true
+    },
+    "REDIS_PASSWORD": {
+      "required": true
+    },
+    "EMAIL_SENDER_PASS": {
+      "required": true
+    },
+    "JWT_SECRET": {
+      "required": true
+    }
+  },
+  "addons": [
+    "heroku-postgresql",
+    "heroku-redis"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "stack": "heroku-18"
+}

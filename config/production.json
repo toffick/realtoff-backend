@@ -1,8 +1,24 @@
 {
   "environment": "production",
-  "db": {
-    "username": "id",
-    "password": "",
-    "database": "realtoff_production"
+  "website": {
+    "enabled": true,
+    "host": "0.0.0.0",
+    "siteTitle": "REALTOFF",
+    "port": 6361
+  },
+  "EMAIL_SETTINGS": {
+    "TRANSPORTER": {
+      "SENDER": "realtoffteam@gmail.com",
+      "AUTH": {
+        "USER": "realtoffteam@gmail.com",
+        "PASSWORD": ""
+      },
+      "HOST": "smtp.gmail.com",
+      "PORT": 465
+    },
+    "CONFIRM_EMAIL_URL": "/api/v1/confirm-email?hash=",
+    "USER_OFFER_PAGE_URL": "/offers/",
+    "URL_PATH_TO_PUBLIC": "https://realtoff.herokuapp.com",
+    "CONTACT_EMAIL": "realtoffteam@gmail.com"
   }
 }

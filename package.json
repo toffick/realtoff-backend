@@ -1,23 +1,14 @@
 {
-	"name": "pixelplex-base-server",
-	"version": "0.2.0",
-	"repository": {
-		"type": "git",
-		"url": "git@gitlab.pixelplex.by:full-stack/backend.git"
-	},
-	"homepage": "https://gitlab.pixelplex.by/full-stack/backend",
+	"name": "realtoff",
+	"version": "0.0.1",
 	"license": "UNLICENSED",
 	"private": true,
 	"scripts": {
-		"start-dev": "cross-env NODE_ENV=development node init.http.server.js",
-		"start-prod": "cross-env NODE_ENV=production node init.http.server.js",
-		"test": "cross-env NODE_ENV=test NODE_APP_INSTANCE=test nyc node_modules/.bin/mocha --exit --timeout 15000",
+		"start-dev": "set NODE_ENV=development& node init.http.server.js",
+		"start-prod": "set NODE_ENV=production& node init.http.server.js",
 		"lint": "node_modules/.bin/eslint . --quiet",
 		"doc": "node_modules/.bin/apidoc -i modules/api/controllers/ -o apidoc/",
-		"create-db-development": "cross-env  NODE_ENV=development ./node_modules/.bin/sequelize db:create --debug",
-		"create-db-production": "cross-env  NODE_ENV=production ./node_modules/.bin/sequelize db:create --debug",
-		"migrate-development": "cross-env  NODE_ENV=development ./node_modules/.bin/sequelize db:migrate --debug",
-		"migrate-production": "cross-env  NODE_ENV=production ./node_modules/.bin/sequelize db:migrate --debug"
+		"migrate-development": "set NODE_ENV=development& ./node_modules/.bin/sequelize db:migrate --debug"
 	},
 	"dependencies": {
 		"awilix": "^4.2.0",

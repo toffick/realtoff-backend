@@ -2,7 +2,6 @@ const logger = require('log4js').getLogger('redis.connection');
 const redis = require('redis');
 const bluebird = require('bluebird');
 
-
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
@@ -16,7 +15,7 @@ class RedisConnection {
 
 	/**
 	 *
-	 * @param {AppConfig} opts.config
+	 * @param {Object} opts.config
 	 */
 	constructor(opts) {
 		this.config = opts.config;
@@ -40,13 +39,23 @@ class RedisConnection {
 		});
 	}
 
+	/**
+	 *
+	 * @returns {null}
+	 */
 	getClient() {
 		return this.redisClient;
 	}
 
-
+	/**
+	 *
+	 * @returns {RedisClient}
+	 */
 	getNewClient() {
-		return redis.createClient(this.config.redis.port, this.config.redis.host, { db: this.config.redis.db });
+		const {
+			port, host, db, password,
+		} = this.config.redis;
+		return redis.createClient(port, host, { db, password });
 	}
 
 

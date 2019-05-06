@@ -1,8 +1,8 @@
 {
   "cors": false,
   "db": {
-    "host": "127.0.0.1",
-    "port": "5432",
+    "host": "",
+    "port": null,
     "username": "",
     "password": "",
     "database": "realtoff_development",
@@ -12,16 +12,16 @@
     "level": "trace"
   },
   "redis": {
-    "host": "127.0.0.1",
-    "port": 6379,
-    "db": 5,
+    "host": "",
+    "port": null,
+    "db": 0,
     "user": "",
     "password": ""
   },
   "website": {
     "enabled": true,
     "host": "0.0.0.0",
-    "siteTitle": "PROPOOL",
+    "siteTitle": "REALTOFF",
     "port": 6361
   },
   "EMAIL_SETTINGS": {
@@ -42,6 +42,6 @@
   "CURRENCY_CONVERTER_API_KEY": "",
   "PUBLIC_PATHS": {
     "BASE": "/public",
-    "IMAGES": "/images"
+    "IMAGES": "/realty-images"
   }
 }

@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
-const redis = require('redis');
 
+const RedisConnection = require('../../connections/redis.connection');
 
 class EventBus extends EventEmitter {
 
@@ -13,8 +13,9 @@ class EventBus extends EventEmitter {
 
 		this.prefix = config.environment;
 
-		this.pub = redis.createClient({ db: config.redis.db });
-		this.sub = redis.createClient({ db: config.redis.db });
+		const redisConnectionFactory = new RedisConnection({ config });
+		this.pub = redisConnectionFactory.getNewClient();
+		this.sub = redisConnectionFactory.getNewClient();
 
 		this._initListeners();
 		this.initSubscriptions();
@@ -69,7 +70,8 @@ class EventBus extends EventEmitter {
 
 
 	initSubscriptions() {
-		this.sub.on('subscribe', () => { });
+		this.sub.on('subscribe', () => {
+		});
 
 		const { EVENTS: events } = EventBus;
 

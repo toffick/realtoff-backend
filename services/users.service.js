@@ -223,10 +223,12 @@ class UsersService {
 	 */
 	_convertUserPublicField(user) {
 		const responseUser = user.toJSON();
+
 		delete responseUser.password_hash;
+		delete responseUser.email_confirm_hash;
+		delete responseUser.updated_at;
 
 		return responseUser;
-
 	}
 
 

@@ -40,7 +40,7 @@ class TokenGeneratorService {
 	 * @return {Promise.<String>}
 	 */
 	async generateJwtToken({ data, expiresIn }) {
-		const token = jwt.sign(data, this.config.jwtsecret, { expiresIn });
+		const token = jwt.sign(data, this.config.JWT_SECRET, { expiresIn });
 
 		return `${PREFIX}${token}`;
 	}
@@ -62,7 +62,7 @@ class TokenGeneratorService {
 
 		try {
 
-			jwt.verify(tokenWithoutPrefix, this.config.jwtsecret);
+			jwt.verify(tokenWithoutPrefix, this.config.JWT_SECRET);
 
 			return true;
 
@@ -90,7 +90,7 @@ class TokenGeneratorService {
 
 		try {
 
-			const jwtDecoded = jwt.verify(tokenWithoutPrefix, this.config.jwtsecret);
+			const jwtDecoded = jwt.verify(tokenWithoutPrefix, this.config.JWT_SECRET);
 
 			if (jwtDecoded.type !== type) {
 				return null;

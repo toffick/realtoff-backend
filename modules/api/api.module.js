@@ -79,7 +79,7 @@ class ApiModule {
 
 		const jwtOptions = {
 			jwtFromRequest: ExtractJwt.versionOneCompatibility({}),
-			secretOrKey: this.config.jwtsecret,
+			secretOrKey: this.config.JWT_SECRET,
 		};
 
 		passport.use(new JwtStrategy(jwtOptions, ((payload, done) => done(null, payload))));
@@ -252,11 +252,6 @@ class ApiModule {
 		this._addHandler('put', '/users/change-status/:userId', this.isAuthenticated.bind(this),
 			this.isAdmin.bind(this),
 			this.adminController.changeUserStatus.bind(this.adminController));
-
-
-		if (this.config.environment !== 'production') {
-			this._addHandler('get', '/insert-test-data', this.realtyController._insertTestData.bind(this.realtyController));
-		}
 
 		this.app.get('*', (req, res) => res.status(405).json({
 			error: 'Method Not Allowed',

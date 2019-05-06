@@ -55,8 +55,6 @@ class PersonalInfoForm extends BaseForm {
 
 		if (!user) {
 			this.addError('Invalid email', '');
-		} else if (user.telephone_number) {
-			this.addError('Personal data already set', '');
 		}
 
 		if (this.hasErrors()) {

@@ -1,4 +1,5 @@
 const { EVENTS } = require('../../../components/events/event.bus');
+
 /**
  * A namespace.
  * @namespace api
@@ -54,7 +55,9 @@ class UserWatcher {
 
 		const emails = results.map(({ email }) => email);
 
-		const url = this.config.EMAIL_SETTINGS.USER_OFFER_PAGE_URL + offerId;
+		const { URL_PATH_TO_PUBLIC, USER_OFFER_PAGE_URL } = this.config.EMAIL_SETTINGS;
+
+		const url = URL_PATH_TO_PUBLIC + USER_OFFER_PAGE_URL + offerId;
 
 		const html = await this.emailTemplateRenderer.render('emails/user_filter', {
 			url,
@@ -75,12 +78,14 @@ class UserWatcher {
 
 		const { confirmHash, email } = JSON.parse(data);
 
-		const url = this.config.EMAIL_SETTINGS.CONFIRM_EMAIL_URL + confirmHash;
+		const { URL_PATH_TO_PUBLIC, CONFIRM_EMAIL_URL, CONTACT_EMAIL } = this.config.EMAIL_SETTINGS;
+
+		const url = URL_PATH_TO_PUBLIC + CONFIRM_EMAIL_URL + confirmHash;
 
 		const html = await this.emailTemplateRenderer.render('emails/email_confirmation', {
 			email,
-			path_to_public: this.config.EMAIL_SETTINGS.URL_PATH_TO_PUBLIC,
-			contact_email: this.config.EMAIL_SETTINGS.CONTACT_EMAIL,
+			path_to_public: URL_PATH_TO_PUBLIC,
+			contact_email: CONTACT_EMAIL,
 			url,
 		});
 

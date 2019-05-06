@@ -23,7 +23,9 @@ class EmailTransporter {
 		this.config = config;
 
 		this.transporter = nodemailer.createTransport({
-			service: this.config.EMAIL_SETTINGS.TRANSPORTER.SERVICE,
+			host: this.config.EMAIL_SETTINGS.TRANSPORTER.HOST,
+			port: this.config.EMAIL_SETTINGS.TRANSPORTER.PORT,
+			secure: true,
 			auth: {
 				user: this.config.EMAIL_SETTINGS.TRANSPORTER.AUTH.USER,
 				pass: this.config.EMAIL_SETTINGS.TRANSPORTER.AUTH.PASSWORD,

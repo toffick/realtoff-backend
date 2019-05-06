@@ -16,6 +16,7 @@ class DbConnection {
 	 */
 	constructor(opts) {
 		this.config = opts.config;
+
 		this.sequelize = null;
 		this.Sequelize = Sequelize;
 		this.models = {};
@@ -31,13 +32,19 @@ class DbConnection {
 
 		logger.info('Start connecting to PostgreSQL...');
 
-		this.sequelize = new Sequelize(this.config.db.database, this.config.db.username, this.config.db.password, {
-			dialect: this.config.db.dialect,
-			host: this.config.db.host,
-			pool: {
-				max: 30,
-			},
-		});
+		if (this.config.environment === 'production') {
+			this.sequelize = new Sequelize(process.env.DATABASE_URL);
+		} else {
+			const {
+				database, username, password, dialect, host, dialectOptions,
+			} = this.config.db;
+
+			this.sequelize = new Sequelize(database, username, password, {
+				dialect,
+				host,
+				dialectOptions,
+			});
+		}
 
 		fs.readdirSync(path.resolve(__dirname, '../models'))
 			.filter((file) => (file.indexOf('.') !== 0) && (file.slice(-3) === '.js'))
