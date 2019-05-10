@@ -93,3 +93,8 @@ process.on('uncaughtException', (err) => {
 	logger.error(err);
 	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!MAIN PROCESS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', err);
 });
+
+
+// TODO
+// 1. pm2 cluster https://github.com/talyssonoc/node-api-boilerplate/blob/master/cluster.js
+// 2. replace client here and in heroku-prebuild: cd client && npm install / heroku-postbuild: cd client && npm build

@@ -595,22 +595,19 @@ th {
   font-family: "stolzl";
   font-style: normal;
   font-weight: 400;
-  src: url("/fonts/stolzl/Stolzl-Regular.eot");
-  src: url("/fonts/stolzl/Stolzl-Regular.woff2") format("woff2"), url("/fonts/stolzl/Stolzl-Regular.woff") format("woff"), url("/fonts/stolzl/Stolzl-Regular.otf") format("opentype"), url("/fonts/stolzl/Stolzl-Regular.ttf") format("truetype"), url("/fonts/stolzl/Stolzl-Regular.svg#Stolzl-Regular") format("svg"); }
+  src: url("/fonts/stolzl/Stolzl-Regular.woff2") format("woff2"); }
 
 @font-face {
   font-family: "stolzl";
   font-style: normal;
   font-weight: 500;
-  src: url("/fonts/stolzl/Stolzl-Medium.eot");
-  src: url("/fonts/stolzl/Stolzl-Medium.woff2") format("woff2"), url("/fonts/stolzl/Stolzl-Medium.woff") format("woff"), url("/fonts/stolzl/Stolzl-Bold.otf") format("opentype"), url("/fonts/stolzl/Stolzl-Medium.ttf") format("truetype"), url("/fonts/stolzl/Stolzl-Medium.svg#Stolzl-Medium") format("svg"); }
+  src: url("/fonts/stolzl/Stolzl-Medium.woff2") format("woff2"); }
 
 @font-face {
   font-family: "stolzl";
   font-style: normal;
   font-weight: 700;
-  src: url("/fonts/stolzl/Stolzl-Bold.eot");
-  src: url("/fonts/stolzl/Stolzl-Bold.woff2") format("woff2"), url("/fonts/stolzl/Stolzl-Bold.woff") format("woff"), url("/fonts/stolzl/Stolzl-Bold.otf") format("opentype"), url("/fonts/stolzl/Stolzl-Bold.ttf") format("truetype"), url("/fonts/stolzl/Stolzl-Bold.svg#Stolzl-Bold") format("svg"); }
+  src: url("/fonts/stolzl/Stolzl-Bold.woff2") format("woff2"); }
 
 html {
   box-sizing: border-box; }
