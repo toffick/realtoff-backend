@@ -6,6 +6,9 @@
     "siteTitle": "REALTOFF",
     "port": 6361
   },
+  "db":{
+    "use_env_variable": "DATABASE_URL"
+  },
   "EMAIL_SETTINGS": {
     "TRANSPORTER": {
       "SENDER": "realtoffteam@gmail.com",

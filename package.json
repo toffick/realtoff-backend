@@ -9,7 +9,8 @@
 		"lint": "node_modules/.bin/eslint . --quiet",
 		"doc": "node_modules/.bin/apidoc -i modules/api/controllers/ -o apidoc/",
 		"migrate-development": "set NODE_ENV=development& sequelize db:migrate --debug",
-		"insert-subways": "set NODE_ENV=development& node ./scripts/insert.subways.js"
+		"insert-subways-dev": "set NODE_ENV=development& node ./scripts/insert.subways.js",
+		"insert-subways-prod": "set NODE_ENV=production& node ./scripts/insert.subways.js"
 	},
 	"dependencies": {
 		"awilix": "^4.2.0",
