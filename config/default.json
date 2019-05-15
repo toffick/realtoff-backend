@@ -26,8 +26,6 @@
   },
   "EMAIL_SETTINGS": {
     "TRANSPORTER": {
-      "SERVICE": "gmail",
-      "SENDER": "",
       "AUTH": {
         "USER": "",
         "PASSWORD": ""

@@ -47,8 +47,8 @@ class SearchForm extends BaseForm {
 		this.squareFrom = Number(squareFrom);
 		this.squareTo = Number(squareTo);
 		this.permitsMask = Number(permitsMask);
-		this.isPersonalLessor = isPersonalLessor === 'true';   // sry, guys
-		this.nearSubway = nearSubway === 'true';
+		this.isPersonalLessor = isPersonalLessor;
+		this.nearSubway = nearSubway;
 		this.type = type;
 	}
 
