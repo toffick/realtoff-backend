@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const NotFoundError = require('../components/errors/not.found.error');
-const CustomError = require('../components/errors/custom.error');
 const HashGeneratorHelper = require('../helpers/hash.generator.helper');
 
 const { TOKEN_TYPES } = require('../constants/constants');
@@ -40,7 +39,6 @@ class UsersService {
 		this.userTokenRepository = userTokenRepository;
 		this.signOutTokenRepository = signOutTokenRepository;
 		this.userFilterRepository = userFilterRepository;
-		this.temporaryRepository = temporaryRepository;
 
 
 		this.eventBus = eventBus;
@@ -377,33 +375,6 @@ class UsersService {
 
 		return result;
 	}
-
-	/**
-	 *
-	 * @param filterObject
-	 * @param userId
-	 * @returns {Promise<*>}
-	 */
-	async saveFilter(filterObject, userId) {
-		const userFilter = await this.userFilterRepository.fetchUserFilter(filterObject, userId);
-
-		if (userFilter) {
-			throw new CustomError('Фильтр с такими параметрами уже существует', 'user_filter', 409);
-		}
-
-		return this.userFilterRepository.create(filterObject, userId);
-	}
-
-	/**
-	 *
-	 * @param userId
-	 * @param filterId
-	 * @returns {Promise<*>}
-	 */
-	async removeFilter(userId, filterId) {
-		return this.userFilterRepository.remove(userId, filterId);
-	}
-
 
 	/**
 	 *

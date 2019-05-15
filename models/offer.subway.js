@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 		tableName: 'offer_subway',
 		freezeTableName: true,
 		underscored: true,
+		timestamps: false,
 	});
 
 	OfferSubway.associate = (models) => {

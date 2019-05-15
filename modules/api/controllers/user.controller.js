@@ -28,18 +28,20 @@ class UserController {
 	 * @param {AuthActionService} authActionService
 	 */
 	constructor({
-					userTokenRepository,
-					userRepository,
-					usersService,
-					tokenGeneratorService,
-					errorsHandler,
-					redisConnection,
-					config,
-				}) {
+		userTokenRepository,
+		userRepository,
+		usersService,
+		tokenGeneratorService,
+		errorsHandler,
+		redisConnection,
+		config,
+		usersFilterService,
+	}) {
 		this.userTokenRepository = userTokenRepository;
 		this.userRepository = userRepository;
 
 		this.usersService = usersService;
+		this.usersFilterService = usersFilterService;
 		this.tokenGeneratorService = tokenGeneratorService;
 		this.config = config;
 		this.errorsHandler = errorsHandler;
@@ -342,7 +344,7 @@ class UserController {
 				return next(this.errorsHandler.createValidateErrorsFromArray(searchForm.getErrors()));
 			}
 
-			const savedFilter = await this.usersService.saveFilter(searchForm.getFormObject(), id);
+			const savedFilter = await this.usersFilterService.saveFilter(searchForm.getFormObject(), id);
 
 			return next(null, savedFilter);
 
@@ -360,7 +362,7 @@ class UserController {
 			const { id } = token.payload;
 			const { filterId } = params;
 
-			const removedItems = await this.usersService.removeFilter(id, filterId);
+			const removedItems = await this.usersFilterService.removeFilter(id, filterId);
 
 			if (removedItems < 1) {
 				throw new CustomError('Фильтра не существует', '', 404);

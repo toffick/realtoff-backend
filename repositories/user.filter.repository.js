@@ -27,6 +27,7 @@ class UserFilterRepository {
 			permitsMask,
 			type,
 			isPersonalLessor,
+			nearSubway,
 		} = filterObject;
 
 		const user = await this.models.UserFilter.create({
@@ -42,6 +43,7 @@ class UserFilterRepository {
 			permits_mask: permitsMask,
 			type,
 			is_personal_lessor: isPersonalLessor,
+			near_subway: nearSubway,
 		});
 
 		return user;
@@ -116,9 +118,7 @@ class UserFilterRepository {
 									${currentCurrency.map((item) => `when uf.currency = '${item.to}' then :pricePerMonth * ${item.val}`)}								
 								end
 							)
-							or price_from isnull)
-							
-							
+							or price_from isnull)							
 						and	(price_to >= 
 						(
 							case
@@ -134,6 +134,13 @@ class UserFilterRepository {
 							case
 								when uf.is_personal_lessor=true 
 									then u.is_personal_lessor=true  
+									else true
+							end
+						)
+						and (
+							case
+								when uf.near_subway=true 
+									then :nearSubway
 									else true
 							end
 						)

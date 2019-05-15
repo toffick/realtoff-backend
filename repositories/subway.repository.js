@@ -52,9 +52,10 @@ class SubwayRepository {
 					city: city.toString(),
 					offerId,
 				},
-				type: this.dbConnection.sequelize.QueryTypes.SELECT,
+				type: this.dbConnection.sequelize.QueryTypes.INSERT,
 				raw: true,
 				transaction,
+				returning: true,
 			},
 		);
 	}

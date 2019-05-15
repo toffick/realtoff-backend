@@ -70,7 +70,11 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			type: DataTypes.DATE,
 		},
-		is_personal_lessor:{
+		is_personal_lessor: {
+			allowNull: true,
+			type: DataTypes.BOOLEAN,
+		},
+		near_subway:{
 			allowNull: true,
 			type: DataTypes.BOOLEAN,
 		}

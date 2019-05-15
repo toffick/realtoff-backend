@@ -45,6 +45,7 @@ class OfferService {
 	 */
 	async createOffer(offerObject, userId) {
 
+		let nearSubway = false;
 
 		const offer = await this.dbConnection.sequelize.transaction({
 			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
@@ -54,13 +55,17 @@ class OfferService {
 			const { id: descriptionId } = await this.descriptionRepository.createDescription(offerObject, { transaction });
 			const offer = await this.offerRepository.createOffer(offerObject, userId, descriptionId, addressId, { transaction });
 
-			await this.subwayRepository
+			const [, value] = await this.subwayRepository
 				.insertImmediateSubwaysWithOffer(offerObject.coordinates, offerObject.countryCode, offerObject.city, offer.id, { transaction });
+
+			nearSubway = !!value;
 
 			return offer;
 		});
 
 		offerObject.userId = userId;
+		offerObject.nearSubway = nearSubway;
+
 		this.eventBus.publishEvent(EVENTS.USER.NEW_OFFER, JSON.stringify({
 			offerData: offerObject,
 			offerId: offer.id,
