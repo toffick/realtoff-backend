@@ -22,16 +22,16 @@ class UsersService {
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
-		config,
-		tokenGeneratorService,
-		userRepository,
-		userTokenRepository,
-		signOutTokenRepository,
-		temporaryRepository,
-		eventBus,
-		dbConnection,
-		userFilterRepository,
-	}) {
+					config,
+					tokenGeneratorService,
+					userRepository,
+					userTokenRepository,
+					signOutTokenRepository,
+					temporaryRepository,
+					eventBus,
+					dbConnection,
+					userFilterRepository,
+				}) {
 		this.config = config;
 
 		this.tokenGeneratorService = tokenGeneratorService;

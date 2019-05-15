@@ -8,7 +8,8 @@
 		"start-prod": "set NODE_ENV=production& node init.http.server.js",
 		"lint": "node_modules/.bin/eslint . --quiet",
 		"doc": "node_modules/.bin/apidoc -i modules/api/controllers/ -o apidoc/",
-		"migrate-development": "set NODE_ENV=development& ./node_modules/.bin/sequelize db:migrate --debug"
+		"migrate-development": "set NODE_ENV=development& sequelize db:migrate --debug",
+		"insert-subways": "set NODE_ENV=development& node ./scripts/insert.subways.js"
 	},
 	"dependencies": {
 		"awilix": "^4.2.0",
@@ -19,7 +20,6 @@
 		"body-parser": "^1.18.2",
 		"chai-http": "^4.2.1",
 		"config": "^3.0.1",
-		"connect-mongo": "^2.0.3",
 		"cors": "^2.8.4",
 		"express": "^4.15.5",
 		"express-form": "^0.12.6",

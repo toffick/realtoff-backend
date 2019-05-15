@@ -96,7 +96,7 @@ class UserFilterRepository {
 	_searchQueryBuilder(queryObject, currentCurrenciesRates) {
 		const currentCurrency = currentCurrenciesRates[queryObject.currency];
 
-		let where = `select DISTINCT u.id, u.email
+		const where = `select DISTINCT u.id, u.email
 						from user_filter as uf
 						join "user" as u
 						on u.id = uf.user_id

@@ -13,6 +13,7 @@ class OfferService {
 	 * @param {EventBus} eventBus
 	 * @param {DescriptionRepository} descriptionRepository
 	 * @param {OfferPhotoRepository} offerPhotoRepository
+	 * @param {SubwayRepository} subwayRepository
 	 */
 	constructor({
 		config,
@@ -22,13 +23,17 @@ class OfferService {
 		addressRepository,
 		descriptionRepository,
 		offerPhotoRepository,
+		subwayRepository,
 	}) {
 		this.dbConnection = dbConnection;
 		this.config = config;
+
 		this.offerRepository = offerRepository;
 		this.addressRepository = addressRepository;
 		this.descriptionRepository = descriptionRepository;
 		this.offerPhotoRepository = offerPhotoRepository;
+		this.subwayRepository = subwayRepository;
+
 		this.eventBus = eventBus;
 	}
 
@@ -40,6 +45,7 @@ class OfferService {
 	 */
 	async createOffer(offerObject, userId) {
 
+
 		const offer = await this.dbConnection.sequelize.transaction({
 			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
 		}, async (transaction) => {
@@ -47,6 +53,9 @@ class OfferService {
 			const { id: addressId } = await this.addressRepository.createAddress(offerObject, { transaction });
 			const { id: descriptionId } = await this.descriptionRepository.createDescription(offerObject, { transaction });
 			const offer = await this.offerRepository.createOffer(offerObject, userId, descriptionId, addressId, { transaction });
+
+			await this.subwayRepository
+				.insertImmediateSubwaysWithOffer(offerObject.coordinates, offerObject.countryCode, offerObject.city, offer.id, { transaction });
 
 			return offer;
 		});

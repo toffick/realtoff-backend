@@ -511,17 +511,17 @@ th {
     padding-top: 120px; }
     .offer-page .admin-panel button {
       margin: 2px; }
+  .offer-page .placeholder {
+    background: url(/import/no_photo.jpg) no-repeat scroll 0 0;
+    background-size: 1070px; }
   .offer-page .images-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 15px; }
-    .offer-page .images-wrapper .inner {
-      max-height: 63vh;
-      max-width: 60vw;
-      height: 63vh;
-      min-height: 63vh;
-      min-width: 60vw; }
+    .offer-page .images-wrapper .item {
+      height: 650px;
+      width: 1070px; }
     .offer-page .images-wrapper .updated {
       text-align: right;
       padding-bottom: 8px; }

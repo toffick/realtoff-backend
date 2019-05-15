@@ -102,6 +102,16 @@ class OfferRepository {
 			_uppendAndCondition('u.is_personal_lessor=true');
 		}
 
+		if (queryObject.nearSubway) {
+			_uppendAndCondition(`
+					EXISTS(
+						select 1 from
+						offer_subway as os
+						where os.offer_id=o.id
+					)
+			`);
+		}
+
 		if (queryObject.priceFrom) {
 			const currentCurrency = currentCurrenciesRates[queryObject.currency];
 			const caseClause = `

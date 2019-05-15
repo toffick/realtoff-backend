@@ -45,4 +45,6 @@ module.exports = {
 		ACTIVE: 'ACTIVE',
 		BANNED: 'BANNED',
 	},
+
+	MINIMAL_METRO_DISTANCE_METRES: 1000
 };

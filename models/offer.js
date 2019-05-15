@@ -119,6 +119,14 @@ module.exports = (sequelize, DataTypes) => {
 			onDelete: 'CASCADE',
 			as: 'photos'
 		});
+
+
+		Offer.belongsToMany(models.Subway, {
+			onDelete: 'CASCADE',
+			through: 'OfferSubway',
+			foreignKey: 'offer_id'
+		});
+
 	};
 
 	return Offer;

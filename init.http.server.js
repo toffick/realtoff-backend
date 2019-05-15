@@ -98,3 +98,14 @@ process.on('uncaughtException', (err) => {
 // TODO
 // 1. pm2 cluster https://github.com/talyssonoc/node-api-boilerplate/blob/master/cluster.js
 // 2. replace client here and in heroku-prebuild: cd client && npm install / heroku-postbuild: cd client && npm build
+/*
+*  [1] https://geocode-maps.yandex.ru/1.x/?apikey=9b383d53-1b54-4ae1-a1ec-4d4b46aac1d3&format=json&geocode=27.562796,53.900916&kind=metro&spn=0.01,0.01&rspn=1
+*  1. получаем координаты с фронта
+*  2. по ссылке [1] ищем координаты метро. сохраняем в бд
+*  2.1 если же метро с таким адресом уже есть, то делаем ссылку на это метро
+*  2.2 или несколько ссылок
+*  3. поиск с отметкой "рядом с метро" делаем left outer join на offers
+*  таблица subway(address_id, name)
+*  таблица subway_offer(subway_id, offer_id, distanse)
+*  в таблице offer ничего не делаем сука
+* */

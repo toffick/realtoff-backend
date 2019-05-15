@@ -19,7 +19,7 @@ class SearchForm extends BaseForm {
 	 * @param countryCode
 	 * @param city
 	 * @param bounds
-	 * @param nearPlaceCoordinates
+	 * @param nearSubway
 	 */
 	constructor({
 		currency,
@@ -33,10 +33,7 @@ class SearchForm extends BaseForm {
 		countryCode,
 		city,
 		isPersonalLessor,
-		// TODO
-		bounds,
-		// TODO
-		nearPlaceCoordinates,
+		nearSubway,
 
 	}) {
 		super();
@@ -50,7 +47,8 @@ class SearchForm extends BaseForm {
 		this.squareFrom = Number(squareFrom);
 		this.squareTo = Number(squareTo);
 		this.permitsMask = Number(permitsMask);
-		this.isPersonalLessor = isPersonalLessor;
+		this.isPersonalLessor = isPersonalLessor === 'true';   // sry, guys
+		this.nearSubway = nearSubway === 'true';
 		this.type = type;
 	}
 
@@ -127,6 +125,10 @@ class SearchForm extends BaseForm {
 			delete this.isPersonalLessor;
 		}
 
+		if (!this.nearSubway) {
+			delete this.nearSubway;
+		}
+
 		if (this.hasErrors()) {
 			return false;
 		}
@@ -151,6 +153,7 @@ class SearchForm extends BaseForm {
 			squareFrom,
 			squareTo,
 			isPersonalLessor,
+			nearSubway,
 		} = this;
 
 		return {
@@ -165,6 +168,7 @@ class SearchForm extends BaseForm {
 			squareFrom,
 			squareTo,
 			isPersonalLessor,
+			nearSubway,
 		};
 	}
 

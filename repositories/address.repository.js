@@ -1,7 +1,7 @@
 class AddressRepository {
 
 
-	constructor({ dbConnection, config }) {
+	constructor({ dbConnection }) {
 		this.dbConnection = dbConnection;
 		this.models = dbConnection.models;
 		this.Op = dbConnection.Sequelize.Op;
@@ -16,8 +16,8 @@ class AddressRepository {
 		const coordinates = {
 			type: 'Point',
 			coordinates: [
-				offerObject.coordinates.longitude.toString(),
 				offerObject.coordinates.latitude.toString(),
+				offerObject.coordinates.longitude.toString(),
 			],
 		};
 
