@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style,max-len */
 const log4js = require('log4js');
 const logger = require('log4js').getLogger('api.module.js');
 
@@ -179,6 +180,16 @@ class ApiModule {
 		return next();
 	}
 
+	isEmailConfirmed(req, res, next) {
+		const { payload } = req.token;
+
+		if (!payload.isEmailConfirmed) {
+			return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', 'is_email_confirmed', 403));
+		}
+
+		return next();
+	}
+
 	/**
 	 *
 	 * @param {Object} req
@@ -216,29 +227,49 @@ class ApiModule {
 
 	_initRoutes() {
 
-		this._addHandler('post', '/sign-up', this.userController.signUp.bind(this.userController));
-		this._addHandler('post', '/sign-up/continue', this.isAuthenticated.bind(this), this.userController.setPersonalInfo.bind(this.userController));
-		this._addHandler('post', '/sign-in', this.userController.signIn.bind(this.userController));
-		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
-		this._addHandler('post', '/auth', this.isAuthenticated.bind(this), this.userController.isAuth.bind(this.userController));
-		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
-		this._addHandler('post', '/user-filters', this.isAuthenticated.bind(this), this.userController.saveFilters.bind(this.userController));
-		this._addHandler('delete', '/user-filters/:filterId', this.isAuthenticated.bind(this), this.userController.removeFilter.bind(this.userController));
-		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
-		this._addHandler('get', '/profile', this.isAuthenticated.bind(this), this.userController.getProfile.bind(this.userController));
-
-		this._addHandler('post', '/create-offer', this.isAuthenticated.bind(this), this.realtyController.createOffer.bind(this.realtyController));
+		/* -------------Public endpoints--------------*/
 		this._addHandler('get', '/search-offers', this.realtyController.search.bind(this.realtyController));
 		this._addHandler('get', '/offers/general/:offerId', this.realtyController.getOffer.bind(this.realtyController));
-		this._addHandler('put', '/offers/close/:offerId', this.isAuthenticated.bind(this),
+		this._addHandler('post', '/sign-up', this.userController.signUp.bind(this.userController));
+		this._addHandler('post', '/sign-in', this.userController.signIn.bind(this.userController));
+		this._addHandler('post', '/sign-out', this.userController.signOut.bind(this.userController));
+		this._addHandler('post', '/refresh-tokens', this.userController.refreshJwtTokens.bind(this.userController));
+		this._addHandler('get', '/confirm-email', this.userController.confirmEmail.bind(this.userController));
+
+		/* -------------Auth onlyendpoints--------------*/
+		this._addHandler('post', '/auth',
+			this.isAuthenticated.bind(this),
+			this.userController.isAuth.bind(this.userController));
+		this._addHandler('post', '/user-filters',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
+			this.userController.saveFilters.bind(this.userController));
+		this._addHandler('delete', '/user-filters/:filterId',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
+			this.userController.removeFilter.bind(this.userController));
+		this._addHandler('get', '/profile',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
+			this.userController.getProfile.bind(this.userController));
+		this._addHandler('post', '/create-offer',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
+			this.realtyController.createOffer.bind(this.realtyController));
+		this._addHandler('post', '/sign-up/continue',
+			this.isAuthenticated.bind(this),
+			this.userController.setPersonalInfo.bind(this.userController));
+		this._addHandler('put', '/offers/close/:offerId',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
 			this.realtyController.closeOffer.bind(this.realtyController));
-
-		this._addHandler('put', '/offers/upload-photos/:offerId', this.isAuthenticated.bind(this),
+		this._addHandler('put', '/offers/upload-photos/:offerId',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
 			this.multerMiddlewareOffer.array('offer-image', 10).bind(this.multerMiddlewareOffer),
 			this.realtyController.savePhotos.bind(this.realtyController));
-
 
 		/* -------------Admin endpoints--------------*/
 		this._addHandler('put', '/offers/change-status/:offerId', this.isAuthenticated.bind(this),

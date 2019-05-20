@@ -18,14 +18,14 @@ class UserWatcher {
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
-		userRepository,
-		errorsHandler,
-		emailTransporter,
-		config,
-		eventBus,
-		usersFilterService,
-		emailTemplateRenderer,
-	}) {
+					userRepository,
+					errorsHandler,
+					emailTransporter,
+					config,
+					eventBus,
+					usersFilterService,
+					emailTemplateRenderer,
+				}) {
 		this.userRepository = userRepository;
 
 		this.config = config;

@@ -4,6 +4,7 @@ const bluebird = require('bluebird');
 const CreateOfferForm = require('../../../components/forms/create.offer.form');
 const SearchForm = require('../../../components/forms/search.offer.form');
 const CustomError = require('../../../components/errors/custom.error');
+const { OFFER_STATUS } = require('../../../constants/constants');
 
 /**
  * A namespace.
@@ -22,13 +23,13 @@ class RealtyController {
 	 * @param {RedisConnection} redisConnection
 	 */
 	constructor({
-					userRepository,
-					errorsHandler,
-					redisConnection,
-					offerService,
-					searchService,
-					config,
-				}) {
+		userRepository,
+		errorsHandler,
+		redisConnection,
+		offerService,
+		searchService,
+		config,
+	}) {
 		this.userRepository = userRepository;
 
 		this.config = config;
@@ -140,12 +141,12 @@ class RealtyController {
 			if (offer) {
 				result = {
 					success: true,
-					result: offer
+					result: offer,
 				};
 			} else {
 				result = {
 					success: false,
-					error: 'Объявление не найдено или было закрыто'
+					error: 'Объявление не найдено или было закрыто',
 				};
 			}
 
@@ -164,7 +165,7 @@ class RealtyController {
 
 			const offer = await this.offerService.findOffer(offerId);
 
-			if (!offer || offer.user_id !== userId) {
+			if (!offer || offer.user_id !== userId || /*TODO why here?*/offer.status !== OFFER_STATUS.OPEN) {
 				throw new CustomError('Forbidden', '', 403);
 			}
 
@@ -208,6 +209,7 @@ class RealtyController {
 			return next(responseErrors);
 		}
 	}
+
 }
 
 module.exports = RealtyController;

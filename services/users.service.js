@@ -304,7 +304,7 @@ class UsersService {
 		const {
 			accessTokenData,
 			refreshTokenData,
-		} = this._configureTokensData(responseUser.id, responseUser.role);
+		} = this._configureTokensData(responseUser.id, responseUser.role, responseUser.is_email_confirmed);
 
 		const accessToken = await this.tokenGeneratorService.generateJwtToken({
 			data: accessTokenData,
@@ -327,18 +327,21 @@ class UsersService {
 	 *
 	 * @param {String|Number} userId
 	 * @param role
+	 * @param isEmailConfirmed
 	 */
-	_configureTokensData(userId, role) {
+	_configureTokensData(userId, role, isEmailConfirmed) {
 		const refreshTokenData = {
 			id: userId,
 			type: TOKEN_TYPES.REFRESH,
 			role,
+			isEmailConfirmed,
 		};
 
 		const accessTokenData = {
 			id: userId,
 			type: TOKEN_TYPES.ACCESS,
 			role,
+			isEmailConfirmed,
 		};
 
 		return {

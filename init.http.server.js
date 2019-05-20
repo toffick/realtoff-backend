@@ -99,3 +99,4 @@ process.on('uncaughtException', (err) => {
 // 1. pm2 cluster https://github.com/talyssonoc/node-api-boilerplate/blob/master/cluster.js
 // 2. replace client here and in heroku-prebuild: cd client && npm install / heroku-postbuild: cd client && npm build
 // 3. autocreating realty-images
+// 4. TODO когда закрываем объяву, то нужно сделать, чтобы возможность загрузить фотки пропала(убрать форму)

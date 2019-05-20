@@ -28,6 +28,7 @@ class AccessToken {
 		this.raw = raw;
 		this.userId = payload.id;
 		this.role = payload.role;
+		this.isEmailConfirmed = payload.isEmailConfirmed;
 		this.payload = payload;
 
 
