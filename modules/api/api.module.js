@@ -265,7 +265,7 @@ class ApiModule {
 			this.isEmailConfirmed.bind(this),
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
 			this.realtyController.closeOffer.bind(this.realtyController));
-		this._addHandler('put', '/offers/upload-photos/:offerId',
+		this._addHandler('put', '/offers/photos/:offerId',
 			this.isAuthenticated.bind(this),
 			this.isEmailConfirmed.bind(this),
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
