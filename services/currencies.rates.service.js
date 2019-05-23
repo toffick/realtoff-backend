@@ -17,7 +17,10 @@ class CurrenciesRatesService {
 		this.apiKey = opts.config.CURRENCY_CONVERTER_API_KEY;
 		this.apiUrl = 'https://free.currconv.com/api/v7/convert';
 
-		this.currencyRates = Object.values(CURRENCY_TYPES).reduce((a, i) => ({ ...a, [i]: null }), {});
+		this.currencyRates = Object.values(CURRENCY_TYPES).reduce((a, i) => ({
+			...a,
+			[i]: null
+		}), {});
 
 		this.initUpdating();
 	}
@@ -27,7 +30,9 @@ class CurrenciesRatesService {
 	 */
 	initUpdating() {
 		this.update();
-		setInterval(() => { this.update(); }, this.updateIntervalMin * 60 * 1000);
+		setInterval(() => {
+			this.update();
+		}, this.updateIntervalMin * 60 * 1000);
 	}
 
 	/**
@@ -53,7 +58,10 @@ class CurrenciesRatesService {
 			})
 				.then((result) => {
 					const { data: { results } } = result;
-					this.currencyRates[currency] = Object.values(results).map((resultItem) => ({ ...resultItem, id: null }));
+					this.currencyRates[currency] = Object.values(results).map((resultItem) => ({
+						...resultItem,
+						id: null
+					}));
 					console.log(this.currencyRates);
 				})
 				.catch((err) => {

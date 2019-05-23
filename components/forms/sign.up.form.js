@@ -26,23 +26,23 @@ class SignUpForm extends BaseForm {
 	async validate() {
 
 		if (validator.isEmpty(this.email)) {
-			this.addError('Email is required!', 'email');
+			this.addError('Электронная почта обязательна', 'email');
 		}
 
 		if (!validator.isEmail(this.email, { allow_utf8_local_part: false })) {
-			this.addError('Email is invalid', 'email');
+			this.addError('Неверный формат электронной почты', 'email');
 		} else if (this.email.length > 64) {
-			this.addError('Email must be less than 65 characters', 'email');
+			this.addError('Электронная почта должна быть не больше 64 символов', 'email');
 		} else {
 			this.email = validator.normalizeEmail(this.email);
 		}
 
 		if (validator.isEmpty(this.password)) {
-			this.addError('Password is required!', 'password');
+			this.addError('Пароль обязателен', 'password');
 		}
 
 		if (!validator.isLength(this.password, { min: PASSWORD_MIN_LENGTH })) {
-			this.addError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters long`, 'password');
+			this.addError(`Пароль должен быть длинее ${PASSWORD_MIN_LENGTH} символов`, 'password');
 		}
 
 		if (this.hasErrors()) {
@@ -52,7 +52,7 @@ class SignUpForm extends BaseForm {
 		const user = await this.userRepository.userExists(this.email);
 
 		if (user) {
-			this.addError('Account with that email address already exists.', 'email');
+			this.addError('Аккаунт с такой электронной почтой уже существует', 'email');
 		}
 
 		return this.isValid();

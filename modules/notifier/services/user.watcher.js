@@ -1,3 +1,7 @@
+const logger = require('log4js').getLogger('user.watcher.js');
+
+logger.level = 'debug';
+
 const { EVENTS } = require('../../../components/events/event.bus');
 
 /**
@@ -18,14 +22,14 @@ class UserWatcher {
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
-					userRepository,
-					errorsHandler,
-					emailTransporter,
-					config,
-					eventBus,
-					usersFilterService,
-					emailTemplateRenderer,
-				}) {
+		userRepository,
+		errorsHandler,
+		emailTransporter,
+		config,
+		eventBus,
+		usersFilterService,
+		emailTemplateRenderer,
+	}) {
 		this.userRepository = userRepository;
 
 		this.config = config;
@@ -89,12 +93,17 @@ class UserWatcher {
 			url,
 		});
 
-		await this.emailTransporter.sendMail({
-			from: this.config.EMAIL_SETTINGS.TRANSPORTER.SENDER,
-			to: email,
-			subject: 'Email confirmation',
-			html,
-		});
+		try {
+			await this.emailTransporter.sendMail({
+				from: this.config.EMAIL_SETTINGS.TRANSPORTER.SENDER,
+				to: email,
+				subject: 'Email confirmation',
+				html,
+			});
+			logger.info(`registration email has benn successfully sent to user ${data.id}`);
+		} catch (e) {
+			logger.info(`registration email error: ${e}`);
+		}
 	}
 
 }

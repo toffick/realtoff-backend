@@ -26,8 +26,6 @@ if (process.env.NODE_ENV === 'production') {
 	config.JWT_SECRET = process.env.JWT_SECRET;
 	config.EMAIL_SETTINGS.TRANSPORTER.AUTH.PASSWORD = process.env.EMAIL_SENDER_PASS;
 	config.CURRENCY_CONVERTER_API_KEY = process.env.CURRENCY_CONVERTER_API_KEY;
-
-	console.log(config.EMAIL_SETTINGS);
 }
 
 container.register({
@@ -100,3 +98,5 @@ process.on('uncaughtException', (err) => {
 // 2. replace client here and in heroku-prebuild: cd client && npm install / heroku-postbuild: cd client && npm build
 // 3. autocreating realty-images
 // 4. TODO когда закрываем объяву, то нужно сделать, чтобы возможность загрузить фотки пропала(убрать форму)
+// 5. удаление фоток
+// 6. уведомлять, если адрес введен не полный

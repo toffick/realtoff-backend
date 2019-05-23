@@ -97,6 +97,7 @@ class ApiModule {
 					callback(null, fileName);
 				},
 			}),
+			limits: { fileSize: 3145728 }
 		});
 
 		this._setRateLimits();
