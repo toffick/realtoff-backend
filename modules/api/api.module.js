@@ -35,14 +35,14 @@ class ApiModule {
 	 * @param {TemporaryRepository} temporaryRepository
 	 */
 	constructor({
-					config,
-					realtyController,
-					userController,
-					tokenGeneratorService,
-					errorsHandler,
-					adminController,
-					temporaryRepository,
-				}) {
+		config,
+		realtyController,
+		userController,
+		tokenGeneratorService,
+		errorsHandler,
+		adminController,
+		temporaryRepository,
+	}) {
 		this.config = config;
 		this.userController = userController;
 		this.realtyController = realtyController;
@@ -88,7 +88,10 @@ class ApiModule {
 
 		passport.use(new JwtStrategy(jwtOptions, ((payload, done) => done(null, payload))));
 
-		const imagesPublicPath = path.join(__dirname, '../..', this.config.PUBLIC_PATHS.BASE, this.config.PUBLIC_PATHS.IMAGES);
+		let imagesPublicPath = path.join(__dirname, '../..', this.config.PUBLIC_PATHS.BASE, this.config.PUBLIC_PATHS.IMAGES);
+
+		// for backward capability with UNIX system for heroku env
+		imagesPublicPath = `${process.env.NODE_ENV === 'production' ? '.' : ''}${imagesPublicPath}`;
 
 		this.multerMiddlewareOffer = multer({
 			storage: multer.diskStorage({
