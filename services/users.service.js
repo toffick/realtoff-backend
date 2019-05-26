@@ -21,16 +21,16 @@ class UsersService {
 	 * @param {EventBus} eventBus
 	 */
 	constructor({
-					config,
-					tokenGeneratorService,
-					userRepository,
-					userTokenRepository,
-					signOutTokenRepository,
-					temporaryRepository,
-					eventBus,
-					dbConnection,
-					userFilterRepository,
-				}) {
+		config,
+		tokenGeneratorService,
+		userRepository,
+		userTokenRepository,
+		signOutTokenRepository,
+		temporaryRepository,
+		eventBus,
+		dbConnection,
+		userFilterRepository,
+	}) {
 		this.config = config;
 
 		this.tokenGeneratorService = tokenGeneratorService;
@@ -39,6 +39,7 @@ class UsersService {
 		this.userTokenRepository = userTokenRepository;
 		this.signOutTokenRepository = signOutTokenRepository;
 		this.userFilterRepository = userFilterRepository;
+		this.temporaryRepository = temporaryRepository;
 
 
 		this.eventBus = eventBus;
@@ -352,35 +353,6 @@ class UsersService {
 
 	/**
 	 *
-	 * @param {Number} userId
-	 */
-	async isUserEmailConfirmed(userId) {
-
-		// TODO проверка мыла
-		const user = await this.userRepository.fetchUserById(userId);
-
-		let result = false;
-
-		if (!user) {
-			throw new NotFoundError('Not Found', 'user_id');
-		}
-
-		const { is_email_confirmed: isEmailConfirmed } = user;
-
-
-		const { is_changed: isEmailChangeSubmitted, is_confirmed: isNewEmailConfirmed, new_email: newEmail } = userEmailInfo;
-
-		if (isEmailConfirmed) {
-			if ((isEmailChangeSubmitted && isNewEmailConfirmed) || !newEmail) {
-				result = true;
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 *
 	 * @param id
 	 * @returns {Promise<void>}
 	 */
@@ -402,6 +374,19 @@ class UsersService {
 		}
 
 		return result.length > 0;
+	}
+
+	async confirmUserEmail(hash) {
+		const result = await this.userRepository.confirmUserEmail(hash);
+		if (!result[1] || !result[1].length) {
+			return false;
+		}
+
+		const [user] = result[1];
+
+		const redisKey = `${this.temporaryRepository.KEYS.EMAIL_RECENTLY_CONFIRMED}:${user.id}`;
+		await this.temporaryRepository.saveData(redisKey, true, 1800);
+		return true;
 	}
 
 }

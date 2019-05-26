@@ -305,7 +305,7 @@ class UserController {
 		try {
 			const { hash } = req.query;
 
-			const updateInfo = await this.userRepository.confirmUserEmail(hash);
+			const updateInfo = await this.usersService.confirmUserEmail(hash);
 
 			if (!updateInfo) {
 				return next('Invalid link!');

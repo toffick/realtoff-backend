@@ -20,30 +20,19 @@ class TemporaryRepository {
 	 * @param {*} data
 	 * @param {Number} storageTime seconds
 	 */
-	async saveData(key, type, data, storageTime) {
-		const saveResult = await this.redisClientAsync.setAsync(`${key}_${type}`, JSON.stringify(data), 'EX', storageTime);
+	async saveData(key, data, storageTime) {
+		const saveResult = await this.redisClientAsync.setAsync(key, JSON.stringify(data), 'EX', storageTime);
 		return saveResult === 'OK';
 	}
 
 
 	/**
 	 *
-	 * @param {Number} userId
-	 * @param {String} type
+	 * @param key
 	 */
-	async fetchData(userId, type) {
-		const data = await this.redisClientAsync.getAsync(`${userId}_${type}`);
+	async fetchData(key) {
+		const data = await this.redisClientAsync.getAsync(key);
 		return data ? JSON.parse(data) : null;
-	}
-
-
-	/**
-	 *
-	 * @param {Number} userId
-	 * @param {String} type
-	 */
-	async isDataExist(userId, type) {
-		return this.redisClientAsync.existsAsync(`${userId}_${type}`);
 	}
 
 	/**
@@ -52,11 +41,14 @@ class TemporaryRepository {
 	 * @param type
 	 * @return {Promise<*>}
 	 */
-	async removeData(userId, type){
-		return this.redisClientAsync.delAsync(`${userId}_${type}`);
+	async removeData(key) {
+		return this.redisClientAsync.delAsync(key);
 	}
 
 }
 
+TemporaryRepository.prototype.KEYS = {
+	EMAIL_RECENTLY_CONFIRMED: 'EMAIL:RECENTLY_CONFIRMED',
+};
 
 module.exports = TemporaryRepository;

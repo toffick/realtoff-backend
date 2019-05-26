@@ -56,9 +56,9 @@ class OfferRepository {
 	 */
 	_searchQueryBuilder(queryObject, currentCurrenciesRates) {
 		let where = `select 
-			o.id, o.created_at, o.price_per_month, o.currency, 
+			o.id, o.created_at, o.price_per_month, o.currency, o.type,
 			a.country_code, a.city, a.street, a.house_number, a.coordinates,
-			d.description, op.destination
+			d.description, d.room_total, op.destination
 				from offer as o
 				join address as a
 				on o.address_id = a.id
@@ -179,6 +179,9 @@ class OfferRepository {
 				model: this.models.OfferPhoto,
 				attributes: ['file_name', 'id', 'destination'],
 				as: 'photos',
+			},
+			{
+				model: this.models.Subway,
 			}],
 		});
 	}

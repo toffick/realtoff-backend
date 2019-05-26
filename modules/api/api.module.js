@@ -32,21 +32,24 @@ class ApiModule {
 	 * @param {AdminController} adminController
 	 * @param {TokenGeneratorService} tokenGeneratorService
 	 * @param {ErrorsHandler} errorsHandler
+	 * @param {TemporaryRepository} temporaryRepository
 	 */
 	constructor({
-		config,
-		realtyController,
-		userController,
-		tokenGeneratorService,
-		errorsHandler,
-		adminController,
-	}) {
+					config,
+					realtyController,
+					userController,
+					tokenGeneratorService,
+					errorsHandler,
+					adminController,
+					temporaryRepository,
+				}) {
 		this.config = config;
 		this.userController = userController;
 		this.realtyController = realtyController;
 		this.adminController = adminController;
 		this.errorsHandler = errorsHandler;
 		this.tokenGeneratorService = tokenGeneratorService;
+		this.temporaryRepository = temporaryRepository;
 
 		this.app = null;
 		this.multerMiddlewareOffer = null;
@@ -97,7 +100,7 @@ class ApiModule {
 					callback(null, fileName);
 				},
 			}),
-			limits: { fileSize: 3145728 }
+			limits: { fileSize: 3145728 },
 		});
 
 		this._setRateLimits();
@@ -181,11 +184,16 @@ class ApiModule {
 		return next();
 	}
 
-	isEmailConfirmed(req, res, next) {
+	async isEmailConfirmed(req, res, next) {
 		const { payload } = req.token;
 
 		if (!payload.isEmailConfirmed) {
-			return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', 'is_email_confirmed', 403));
+			const redisKey = `${this.temporaryRepository.KEYS.EMAIL_RECENTLY_CONFIRMED}:${payload.id}`;
+			const result = await this.temporaryRepository.fetchData(redisKey);
+
+			if (!result) {
+				return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', 'is_email_confirmed', 403));
+			}
 		}
 
 		return next();

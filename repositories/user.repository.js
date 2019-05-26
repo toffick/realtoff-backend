@@ -114,6 +114,7 @@ class UserRepository {
 				where: {
 					email_confirm_hash: hash,
 				},
+				returning: true,
 			},
 		);
 
