@@ -72,6 +72,22 @@ class UserTokenRepository {
 		return userToken;
 	}
 
+	/**
+	 *
+	 * @param {String} refreshToken
+	 * @return {Promise.<*>}
+	 */
+	async removeAllByUserId(userId,  { transaction } = { transaction: undefined }) {
+
+		return this.models.UserToken.destroy({
+			where: {
+				user_id: userId,
+			},
+			transaction
+		}).then(() => true);
+
+	}
+
 }
 
 module.exports = UserTokenRepository;

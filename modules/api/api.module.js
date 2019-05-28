@@ -209,7 +209,7 @@ class ApiModule {
 	 */
 	isAuthenticated(req, res, next) {
 
-		return passport.authenticate('jwt', { session: false }, (err, payload) => {
+		return passport.authenticate('jwt', { session: false }, async (err, payload) => {
 
 			if (err) {
 				return next(err);
@@ -217,6 +217,14 @@ class ApiModule {
 
 			if (!payload || !payload.id) {
 				return next(this.errorsHandler.createValidateErrorsFromText('Forbidden', '', 403));
+			}
+
+			const redisKey = `${this.temporaryRepository.KEYS.BANNED_USER}:${payload.id}`;
+			const isUserRecentryBanned = await this.temporaryRepository.fetchData(redisKey);
+
+			if (isUserRecentryBanned) {
+				return next(this.errorsHandler.
+					createValidateErrorsFromText('Пользователь заблокирован. По всем вопросам обращайтесь realtoffinfo@gmail.com', 'banned', 403));
 			}
 
 			req.token = new AccessToken(req.header('Authorization'), payload);
@@ -264,7 +272,7 @@ class ApiModule {
 			this.isAuthenticated.bind(this),
 			this.isEmailConfirmed.bind(this),
 			this.userController.getProfile.bind(this.userController));
-		this._addHandler('post', '/create-offer',
+		this._addHandler('post', '/offers',
 			this.isAuthenticated.bind(this),
 			this.isEmailConfirmed.bind(this),
 			this.realtyController.createOffer.bind(this.realtyController));

@@ -49,6 +49,7 @@ class TemporaryRepository {
 
 TemporaryRepository.prototype.KEYS = {
 	EMAIL_RECENTLY_CONFIRMED: 'EMAIL:RECENTLY_CONFIRMED',
+	BANNED_USER: 'USER:BANNED',
 };
 
 module.exports = TemporaryRepository;

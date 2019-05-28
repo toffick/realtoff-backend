@@ -172,11 +172,12 @@ class UserFilterRepository {
 	 * @param filterId
 	 * @returns {Promise<*|PromiseLike<boolean | never>|Promise<boolean | never>>}
 	 */
-	async removeAllByUserId(userId) {
+	async removeAllByUserId(userId, { transaction } = { transaction: undefined }) {
 		return this.models.UserFilter.destroy({
 			where: {
 				user_id: userId,
 			},
+			transaction,
 		});
 
 	}

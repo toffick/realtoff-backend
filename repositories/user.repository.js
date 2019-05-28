@@ -138,13 +138,14 @@ class UserRepository {
 		});
 	}
 
-	async changeStatus(status, userId) {
+	async changeStatus(status, userId,  { transaction } = { transaction: undefined }) {
 		return this.models.User.update({
 			status,
 		}, {
 			where: {
 				id: userId,
 			},
+			transaction
 		});
 	}
 

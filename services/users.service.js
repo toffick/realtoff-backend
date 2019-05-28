@@ -367,13 +367,26 @@ class UsersService {
 	 * @returns {Promise<boolean>}
 	 */
 	async changeStatus(status, userId) {
-		const result = await this.userRepository.changeStatus(status, userId);
 
-		if (result.length > 0 && status === USER_STATUS.BANNED) {
-			await this.userFilterRepository.removeAllByUserId(userId);
-		}
+		const res = await this.dbConnection.sequelize.transaction({
+			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
+		}, async (transaction) => {
 
-		return result.length > 0;
+			const result = await this.userRepository.changeStatus(status, userId, { transaction });
+
+			if (result.length > 0 && status === USER_STATUS.BANNED) {
+				await this.userFilterRepository.removeAllByUserId(userId, { transaction });
+				await this.userTokenRepository.removeAllByUserId(userId, { transaction });
+
+				const redisKey = `${this.temporaryRepository.KEYS.BANNED_USER}:${userId}`;
+				await this.temporaryRepository.saveData(redisKey, true, 1800);
+			}
+
+			return result.length > 0;
+		});
+
+
+		return res;
 	}
 
 	async confirmUserEmail(hash) {
