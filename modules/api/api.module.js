@@ -90,8 +90,8 @@ class ApiModule {
 
 		let imagesPublicPath = path.join(__dirname, '../..', this.config.PUBLIC_PATHS.BASE, this.config.PUBLIC_PATHS.IMAGES);
 
-		// for backward capability with UNIX system for heroku env
-		imagesPublicPath = `${process.env.NODE_ENV === 'production' ? '.' : ''}${imagesPublicPath}`;
+		//TODO for backward capability with UNIX system for heroku env
+		imagesPublicPath = `${this.config.environment === 'production' ? '.' : ''}${imagesPublicPath}`;
 
 		this.multerMiddlewareOffer = multer({
 			storage: multer.diskStorage({
@@ -282,6 +282,10 @@ class ApiModule {
 			this.realtyController.isUserOfferOwner.bind(this.realtyController),
 			this.multerMiddlewareOffer.array('offer-image', 10).bind(this.multerMiddlewareOffer),
 			this.realtyController.savePhotos.bind(this.realtyController));
+		this._addHandler('delete', '/offers/photos/:offerId',
+			this.isAuthenticated.bind(this),
+			this.isEmailConfirmed.bind(this),
+			this.realtyController.removePhotos.bind(this.realtyController));
 
 		/* -------------Admin endpoints--------------*/
 		this._addHandler('put', '/offers/change-status/:offerId', this.isAuthenticated.bind(this),

@@ -163,6 +163,10 @@ class RealtyController {
 			const { offerId } = req.params;
 			const { token: { payload: { id: userId } } } = req;
 
+			if (isNaN(offerId)) {
+				throw new CustomError('Wrong data', '', 400);
+			}
+
 			const offer = await this.offerService.findOffer(offerId);
 
 			if (!offer || offer.user_id !== userId || /*TODO why here?*/offer.status !== OFFER_STATUS.OPEN) {
@@ -192,9 +196,40 @@ class RealtyController {
 		}
 	}
 
+	async removePhotos(req, res, next) {
+		try {
+			const { token: { payload: { id: userId } } } = req;
+			const { offerId } = req.params;
+			const { photoId } = req.query;
+
+			if (isNaN(offerId) || isNaN(photoId)) {
+				throw new CustomError('Wrong data', '', 400);
+			}
+
+			const offer = await this.offerService.findOffer(offerId);
+
+
+			if (!offer || offer.user_id !== userId ) {
+				throw new CustomError('Forbidden', '', 403);
+			}
+
+			const photos = await this.offerService.removePhotos(offer, Number(photoId));
+
+			return next(null, photos);
+		} catch (e) {
+			const responseErrors = await this.errorsHandler.createUnknownError(e);
+
+			return next(responseErrors);
+		}
+	}
+
 	async closeOffer(req, res, next) {
 		try {
 			const { offerId } = req.params;
+
+			if (isNaN(offerId)) {
+				throw new CustomError('Wrong data', '', 400);
+			}
 
 			const result = await this.offerService.close(offerId);
 

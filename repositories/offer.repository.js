@@ -186,6 +186,18 @@ class OfferRepository {
 		});
 	}
 
+	// TODO copypaste
+	async setPreviewImage(id, previewImageId, { transaction } = { transaction: undefined }) {
+		return this.models.Offer.update({
+			preview_photo_id: previewImageId,
+		}, {
+			where: {
+				id,
+			},
+			transaction,
+		});
+	}
+
 	async setFirstPreviewImage(id, previewImageId, { transaction } = { transaction: undefined }) {
 		return this.models.Offer.update({
 			preview_photo_id: previewImageId,
@@ -193,19 +205,6 @@ class OfferRepository {
 			where: {
 				id,
 				preview_photo_id: null,
-			},
-			transaction,
-		});
-	}
-
-	async updatePreviewImage(id, previewImageId, { transaction } = { transaction: undefined }) {
-		return this.models.Offer.update({
-			preview_photo_id: previewImageId,
-		}, {
-			id,
-		}, {
-			where: {
-				id,
 			},
 			transaction,
 		});

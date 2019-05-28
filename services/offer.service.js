@@ -1,4 +1,5 @@
-const iso = require('iso-3166-1');
+const path = require('path');
+const fs = require('fs');
 
 const { EVENTS } = require('../components/events/event.bus');
 
@@ -105,6 +106,50 @@ class OfferService {
 			const [previewPhoto] = createdPhotos;
 			await this.offerRepository.setFirstPreviewImage(offerId, previewPhoto.id, transaction);
 			return createdPhotos;
+		});
+
+	}
+
+	/**
+	 *
+	 * @param offer
+	 * @param photoId
+	 * @returns {Promise<*>}
+	 */
+	async removePhotos(offer, photoId) {
+		return this.dbConnection.sequelize.transaction({
+			isolationLevel: this.dbConnection.sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
+		}, async (transaction) => {
+
+			const { preview_photo_id: previewPhotoId, id: offerId } = offer;
+
+
+			if (previewPhotoId === photoId) {
+				await this.offerPhotoRepository.setNewPhotoId(previewPhotoId, offerId, { transaction });
+			}
+
+			const photo = await this.offerPhotoRepository.fetchById(photoId, { transaction });
+
+			const { BASE, IMAGES } = this.config.PUBLIC_PATHS;
+			let pathName = path.join(__dirname, '..', BASE, IMAGES, photo.file_name);
+
+			// TODO for backward capability with UNIX system for heroku env
+			pathName = `${this.config.environment === 'production' ? '.' : ''}${pathName}`;
+
+			await new Promise((res, rej) => {
+				fs.unlink(pathName, (err) => {
+					if (err) {
+						console.error(err);
+						return rej(err);
+					}
+
+					return res();
+				});
+			});
+
+			await this.offerPhotoRepository.remove(photoId, { transaction });
+
+			return true;
 		});
 
 	}
