@@ -186,6 +186,10 @@ class RealtyController {
 			const { files } = req;
 			const { offerId } = req.params;
 
+			if (!files.length){
+				throw new CustomError('Нет прикрепленных материалов', '', 400);
+			}
+
 			const photos = await this.offerService.uploadPhotos(files, offerId);
 
 			return next(null, photos);

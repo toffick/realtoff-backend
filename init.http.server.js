@@ -3,6 +3,7 @@ if (!process.env.NODE_ENV) {
 }
 const async = require('async');
 const path = require('path');
+const fs = require('fs');
 const config = require('config');
 const { listModules, asValue } = require('awilix');
 const express = require('express');
@@ -83,6 +84,11 @@ const startMainProcess = () => {
 
 
 (function init() {
+	const imagesFolderName = path.join(__dirname, config.PUBLIC_PATHS.BASE, config.PUBLIC_PATHS.IMAGES);
+	if (!fs.existsSync(imagesFolderName)){
+		fs.mkdirSync(imagesFolderName);
+	}
+
 	startMainProcess();
 }());
 

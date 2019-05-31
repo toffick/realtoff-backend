@@ -558,6 +558,7 @@ th {
   margin-bottom: 25px; }
 
 .profile-page {
+  min-width: 1340px;
   background-color: rgba(255, 255, 255, 0.93);
   padding: 15px; }
   .profile-page .personal-info {

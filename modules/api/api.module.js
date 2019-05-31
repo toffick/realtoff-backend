@@ -88,10 +88,10 @@ class ApiModule {
 
 		passport.use(new JwtStrategy(jwtOptions, ((payload, done) => done(null, payload))));
 
-		let imagesPublicPath = path.join(__dirname, '../../..', this.config.PUBLIC_PATHS.BASE, this.config.PUBLIC_PATHS.IMAGES);
+		let imagesPublicPath = path.join(this.config.PUBLIC_PATHS.BASE, this.config.PUBLIC_PATHS.IMAGES);
 
 		//TODO for backward capability with UNIX system for heroku env
-		imagesPublicPath = `${this.config.environment === 'production' ? '.' : ''}.${imagesPublicPath}`;
+		imagesPublicPath = `${this.config.environment === 'production' ? '.' : path.join(__dirname, '../..')}${imagesPublicPath}`;
 
 		this.multerMiddlewareOffer = multer({
 			storage: multer.diskStorage({

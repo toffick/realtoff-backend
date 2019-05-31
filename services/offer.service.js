@@ -131,10 +131,10 @@ class OfferService {
 			const photo = await this.offerPhotoRepository.fetchById(photoId, { transaction });
 
 			const { BASE, IMAGES } = this.config.PUBLIC_PATHS;
-			let pathName = path.join(__dirname, '..', BASE, IMAGES, photo.file_name);
+			let pathName = path.join(BASE, IMAGES, photo.file_name);
 
 			// TODO for backward capability with UNIX system for heroku env
-			pathName = `${this.config.environment === 'production' ? '.' : ''}${pathName}`;
+			pathName = `${this.config.environment === 'production' ? '.' : path.join(__dirname, '..')}${pathName}`;
 
 			await new Promise((res, rej) => {
 				fs.unlink(pathName, (err) => {
