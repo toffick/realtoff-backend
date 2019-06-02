@@ -140,7 +140,7 @@ class OfferService {
 				fs.unlink(pathName, (err) => {
 					if (err) {
 						console.error(err);
-						return rej(err);
+						return res();
 					}
 
 					return res();
