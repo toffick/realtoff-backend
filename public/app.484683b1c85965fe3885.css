@@ -523,6 +523,10 @@ th {
     .offer-page .images-wrapper .item {
       height: 650px;
       width: 1070px; }
+    .offer-page .images-wrapper .photo-uploader-container {
+      overflow-y: scroll !important;
+      text-align: center;
+      margin-bottom: 35px; }
     .offer-page .images-wrapper .updated {
       text-align: right;
       padding-bottom: 8px; }
