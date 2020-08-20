@@ -15,7 +15,7 @@
 	"dependencies": {
 		"awilix": "^4.2.0",
 		"axios": "^0.18.0",
-		"bcrypt": "^3.0.0",
+		"bcrypt": "^5.0.0",
 		"bignumber.js": "^8.0.2",
 		"bluebird": "^3.5.3",
 		"body-parser": "^1.18.2",
